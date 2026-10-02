@@ -32,6 +32,8 @@ The output is plain static files in `dist/`, so it can be hosted anywhere. It's 
 
 From your own computer you can deploy instead with `npx wrangler login`, then `npm run deploy`.
 
+**Troubleshooting: live site not updating.** Cloudflare builds only on pushes made after the repo was connected. Retrying a deployment rebuilds that same commit. Push a new commit to the branch, then check **Deployments → Recent builds** for the new commit hash.
+
 **While no domain is set** (no `SITE_URL`), every page carries `noindex`, so the demo stays out of Google. The callback form stays off and visitors are offered text or call instead.
 
 **When you're ready to launch:**
