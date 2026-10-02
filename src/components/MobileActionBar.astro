@@ -1,0 +1,86 @@
+---
+import PhoneIcon from './PhoneIcon.astro';
+import { business, cta } from '../content/site';
+---
+
+<div class="action-bar" data-action-bar>
+  <a class="btn btn--primary" href={business.phone.href} data-cta="mobile-bar" aria-label={cta.call}>
+    <PhoneIcon />
+    Call
+  </a>
+  <a class="btn btn--secondary" href="#callback" data-cta="mobile-bar">{cta.callback}</a>
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-action-bar]');
+  const contact = document.getElementById('contact');
+
+  if (bar) {
+    let contactVisible = false;
+    let typing = false;
+    const sync = () => bar.classList.toggle('is-hidden', contactVisible || typing);
+
+    // Hide while the contact section (with its own call action) is on screen.
+    if (contact && 'IntersectionObserver' in window) {
+      new IntersectionObserver(
+        ([entry]) => {
+          contactVisible = entry.isIntersecting;
+          sync();
+        },
+        { rootMargin: '0px 0px -30% 0px' },
+      ).observe(contact);
+    }
+
+    // Hide while a text field has focus, i.e. the on-screen keyboard is likely open.
+    const isField = (el: EventTarget | null) =>
+      el instanceof HTMLElement && el.matches('input:not([type=range]), textarea, select');
+    document.addEventListener('focusin', (e) => {
+      typing = isField(e.target);
+      sync();
+    });
+    document.addEventListener('focusout', () => {
+      typing = false;
+      // Defer so focus moving between fields doesn't flash the bar.
+      setTimeout(() => {
+        typing = isField(document.activeElement);
+        sync();
+      }, 50);
+    });
+  }
+</script>
+
+<style>
+  .action-bar {
+    display: none;
+  }
+
+  @media (max-width: 47.99em) {
+    :global(:root) {
+      --bar-h: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .action-bar {
+      position: fixed;
+      inset: auto 0 0 0;
+      z-index: 40;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: var(--space-xs);
+      padding: 0.6rem var(--gutter) calc(0.6rem + env(safe-area-inset-bottom, 0px));
+      background: var(--ivory);
+      border-top: 1px solid var(--line);
+      transition: transform 180ms var(--ease), visibility 0s linear 0s;
+    }
+
+    .action-bar .btn {
+      min-height: 3.25rem;
+      padding-inline: 0.75rem;
+    }
+
+    .action-bar.is-hidden {
+      transform: translateY(110%);
+      visibility: hidden;
+      transition: transform 180ms var(--ease), visibility 0s linear 180ms;
+    }
+  }
+</style>

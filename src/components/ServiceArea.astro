@@ -1,0 +1,55 @@
+---
+import { business, serviceArea, isPublished } from '../content/site';
+
+interface Props {
+  headingLevel?: 'h2' | 'h3';
+}
+const { headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+---
+
+{
+  isPublished(serviceArea) && (
+    <div class="area" id="area">
+      <Heading class="area__heading">Where we clean</Heading>
+      <p class="area__summary">{serviceArea.summary}</p>
+      <ul class="area__list">
+        {serviceArea.suburbs.map((s) => (
+          <li>{s}</li>
+        ))}
+      </ul>
+      <p class="area__check">
+        Not sure whether we cover your suburb? <a href={business.phone.href} data-cta="area">Call us on {business.phone.display}</a>.
+      </p>
+    </div>
+  )
+}
+
+<style>
+  .area__summary {
+    margin-top: var(--space-m);
+    max-width: 30em;
+  }
+
+  .area__list {
+    list-style: none;
+    columns: 2;
+    column-gap: var(--space-xl);
+    margin-top: var(--space-l);
+    padding-block: var(--space-m);
+    border-block: 1px solid var(--line);
+  }
+
+  .area__list li {
+    padding-block: 0.3rem;
+    break-inside: avoid;
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    color: var(--burgundy);
+  }
+
+  .area__check {
+    margin-top: var(--space-l);
+    max-width: 30em;
+  }
+</style>

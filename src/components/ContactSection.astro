@@ -1,0 +1,132 @@
+---
+import CallbackForm from './CallbackForm.astro';
+import PhoneIcon from './PhoneIcon.astro';
+import { business, serviceArea, cta, isPublished } from '../content/site';
+
+interface Props {
+  heading?: string;
+  headingLevel?: 'h1' | 'h2';
+}
+
+const { heading = 'Let’s take cleaning off your list.', headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+---
+
+<section class="contact" id="contact" aria-labelledby="contact-heading">
+  <div class="wrap contact__grid">
+    <div class="contact__copy">
+      <Heading id="contact-heading" class="contact__heading">{heading}</Heading>
+      <p class="contact__lede">
+        Call to talk through your clean, your suburb and a time that suits. If now isn’t a good moment, request a
+        callback instead.
+      </p>
+
+      <a class="btn btn--light contact__call" href={business.phone.href} data-cta="contact" aria-label={cta.call}>
+        <PhoneIcon />
+        <span>{business.phone.display}</span>
+      </a>
+
+      <dl class="contact__facts">
+        {
+          isPublished(business.hours) && (
+            <div>
+              <dt>Hours</dt>
+              <dd>
+                {business.hours.rows.map((r) => (
+                  <span class="contact__hours-row">
+                    {r.days}: {r.label}
+                  </span>
+                ))}
+              </dd>
+            </div>
+          )
+        }
+        {
+          isPublished(serviceArea) && (
+            <div>
+              <dt>Service area</dt>
+              <dd>
+                {serviceArea.summary}{' '}
+                <a href="/contact#area">See suburbs</a>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </div>
+
+    <CallbackForm titleLevel={headingLevel === 'h1' ? 'h2' : 'h3'} />
+  </div>
+</section>
+
+<style>
+  .contact {
+    background: var(--burgundy);
+    color: var(--on-burgundy);
+    padding-block: var(--section);
+  }
+
+  .contact__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2.5rem, 2rem + 4vw, 6rem);
+    align-items: start;
+  }
+
+  .contact__heading {
+    color: var(--on-burgundy);
+    font-size: var(--step-3);
+    max-width: 12em;
+  }
+
+  .contact__lede {
+    margin-top: var(--space-l);
+    color: var(--on-burgundy-soft);
+    max-width: 30em;
+  }
+
+  .contact__call {
+    margin-top: var(--space-xl);
+    min-height: 3.75rem;
+    padding-inline: 1.6rem;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 1.5rem;
+  }
+
+  .contact__facts {
+    margin: var(--space-2xl) 0 0;
+    display: grid;
+    gap: var(--space-l);
+    padding-top: var(--space-l);
+    border-top: 1px solid rgb(251 247 243 / 0.25);
+  }
+
+  .contact__facts dt {
+    font-weight: 600;
+    color: var(--on-burgundy);
+  }
+
+  .contact__facts dd {
+    margin: 0.25rem 0 0;
+    color: var(--on-burgundy-soft);
+  }
+
+  .contact__facts a {
+    color: var(--on-burgundy);
+  }
+
+  .contact__hours-row {
+    display: block;
+  }
+
+  .contact__copy :focus-visible {
+    outline-color: var(--ivory);
+  }
+
+  @media (max-width: 59.99em) {
+    .contact__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

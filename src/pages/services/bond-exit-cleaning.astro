@@ -1,0 +1,179 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InclusionList from '../../components/InclusionList.astro';
+import Steps from '../../components/Steps.astro';
+import FaqList from '../../components/FaqList.astro';
+import ContactSection from '../../components/ContactSection.astro';
+import PhoneIcon from '../../components/PhoneIcon.astro';
+import beforeFull from '../../assets/work/shower-glass-before-full.png';
+import afterFull from '../../assets/work/shower-glass-after-full.png';
+import { business, services, media, cta, isPublished } from '../../content/site';
+
+const svc = services.bond;
+const standard = svc.inclusions.filter((i) => !i.onRequest);
+const byArrangement = svc.inclusions.filter((i) => i.onRequest);
+const shower = media.showerGlass;
+---
+
+<BaseLayout
+  title="Bond and exit cleaning | Hibiscus Cleaning Services"
+  description="Detailed bond and exit cleaning around Kallangur, North Lakes, Moreton Bay and North Brisbane: kitchen, deep bathroom and shower, cupboards, skirting boards and window tracks. Call 0435 895 629."
+>
+  <section class="page-intro">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Home</a></li>
+          <li><a href="/#services">Services</a></li>
+          <li aria-current="page">Bond and exit cleaning</li>
+        </ol>
+      </nav>
+      <h1>Bond and exit cleaning</h1>
+      <p class="lede">
+        {svc.summary} Hibiscus works through the property in detail so you can hand it back beautifully presented and
+        get on with the move.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href={business.phone.href} data-cta="bond-intro">
+          <PhoneIcon />
+          {cta.call}
+        </a>
+        <a class="btn btn--secondary" href="#callback">{cta.callback}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="included-heading">
+    <div class="wrap">
+      <div class="split split--head">
+        <h2 id="included-heading">What a bond clean covers</h2>
+        <p class="muted">
+          The advertised scope for a bond or exit clean. Every property is different, so confirm the details for yours
+          when you discuss your quote.
+        </p>
+      </div>
+      <InclusionList items={standard} />
+
+      <div class="split split--head arrange">
+        <h2 class="arrange__heading">By arrangement</h2>
+        <p class="muted">Mention it when you enquire so it can be discussed with your clean.</p>
+      </div>
+      <InclusionList items={byArrangement} />
+    </div>
+  </section>
+
+  {
+    isPublished(shower) && (
+      <section class="section section--tint" aria-labelledby="shower-heading">
+        <div class="wrap shower">
+          <div class="shower__copy">
+            <h2 id="shower-heading">Detail where it shows</h2>
+            <p class="lede">
+              Shower screens are one of the first things people notice. A bond clean includes removing limescale, soap
+              scum and built-up grime from the glass, tiles and fixtures.
+            </p>
+            <p class="muted">{shower.caption}</p>
+          </div>
+          <div class="shower__photos">
+            <figure>
+              <Picture src={beforeFull} alt={shower.alt.before} widths={[228, 456]} sizes="(min-width: 60em) 16rem, 45vw" formats={['webp']} fallbackFormat="jpg" quality={72} loading="lazy" />
+              <figcaption>Before</figcaption>
+            </figure>
+            <figure>
+              <Picture src={afterFull} alt={shower.alt.after} widths={[228, 457]} sizes="(min-width: 60em) 16rem, 45vw" formats={['webp']} fallbackFormat="jpg" quality={72} loading="lazy" />
+              <figcaption>After</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--ruled" aria-labelledby="quote-heading">
+    <div class="wrap split">
+      <h2 id="quote-heading">Discuss your quote</h2>
+      <div class="prose">
+        <p class="lede">
+          Pricing depends on the property, so it’s worked out with you rather than listed here.
+        </p>
+        <p>
+          When you call, have a few details handy: the suburb, the number of bedrooms and bathrooms, roughly what
+          condition the home is in, your move-out date, and whether you’d like carpet cleaning arranged.
+        </p>
+        <p>
+          Your property manager or landlord decides the outcome of your final inspection. Hibiscus focuses on leaving
+          the home thoroughly clean and well presented for it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Steps />
+
+  <section class="section section--ruled" aria-labelledby="faq-heading">
+    <div class="wrap split">
+      <h2 id="faq-heading">Questions</h2>
+      <div>
+        <FaqList only={[3, 1, 4, 5]} />
+      </div>
+    </div>
+  </section>
+
+  <ContactSection />
+</BaseLayout>
+
+<style>
+  .arrange {
+    margin-top: var(--space-3xl);
+  }
+
+  .arrange__heading {
+    font-size: var(--step-2);
+  }
+
+  .shower {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: clamp(2rem, 1rem + 4vw, 5rem);
+    align-items: center;
+  }
+
+  .shower__copy > * + * {
+    margin-top: var(--space-l);
+  }
+
+  .shower__copy p {
+    max-width: 32em;
+  }
+
+  .shower__photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-m);
+    max-width: 34rem;
+  }
+
+  .shower__photos figure {
+    margin: 0;
+  }
+
+  .shower__photos img {
+    width: 100%;
+    aspect-ratio: 456 / 931;
+    object-fit: cover;
+    border-radius: var(--radius-img);
+  }
+
+  .shower__photos figcaption {
+    margin-top: var(--space-xs);
+    font-weight: 600;
+    color: var(--burgundy);
+  }
+
+  @media (max-width: 47.99em) {
+    .shower {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

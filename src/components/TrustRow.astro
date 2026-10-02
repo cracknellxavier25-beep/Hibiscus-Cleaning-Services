@@ -1,0 +1,67 @@
+---
+import { ratings, isPublished } from '../content/site';
+
+const items = ratings.filter(isPublished);
+---
+
+{
+  items.length > 0 && (
+    <ul class="trust" aria-label="Ratings">
+      {items.map((r) => (
+        <li>
+          <a href={r.url} rel="noopener" target="_blank">
+            {r.platform === 'Google' && (
+              <svg class="trust__star" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M10 1.5l2.6 5.3 5.9.9-4.25 4.1 1 5.85L10 14.9l-5.25 2.75 1-5.85L1.5 7.7l5.9-.9L10 1.5z" fill="currentColor" />
+              </svg>
+            )}
+            <span class="trust__headline">{r.headline}</span>
+            {r.countLabel && <span class="trust__count">{r.countLabel}</span>}
+            <span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .trust {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s) var(--space-xl);
+  }
+
+  .trust a {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.45rem;
+    min-height: 2.75rem;
+    color: var(--charcoal);
+    text-decoration: none;
+  }
+
+  .trust a:hover .trust__headline {
+    text-decoration: underline;
+    text-decoration-color: var(--gold);
+  }
+
+  .trust__star {
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--gold);
+  }
+
+  .trust__headline {
+    font-weight: 600;
+    color: var(--burgundy);
+    text-underline-offset: 0.2em;
+  }
+
+  .trust__count {
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+</style>

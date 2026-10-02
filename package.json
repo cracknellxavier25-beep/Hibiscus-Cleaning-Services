@@ -1,0 +1,25 @@
+{
+  "name": "hibiscus-cleaning-services",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "PUBLIC_FORM_PREVIEW=true astro dev",
+    "build": "astro check && astro build",
+    "build:preview": "PUBLIC_FORM_PREVIEW=true astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test:e2e": "node tests/e2e.mjs"
+  },
+  "dependencies": {
+    "@fontsource/lora": "^5.3.0",
+    "@fontsource/source-sans-3": "^5.3.0",
+    "astro": "^7.3.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.6.4",
+    "playwright": "^1.56.1",
+    "typescript": "^6.0.3"
+  }
+}

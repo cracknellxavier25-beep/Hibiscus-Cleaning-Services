@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactSection from '../components/ContactSection.astro';
+import ServiceArea from '../components/ServiceArea.astro';
+import FaqList from '../components/FaqList.astro';
+import { business } from '../content/site';
+
+const socials = Object.values(business.social).filter((s) => s.publish);
+---
+
+<BaseLayout
+  title="Contact | Hibiscus Cleaning Services, Kallangur"
+  description="Call Hibiscus Cleaning Services on 0435 895 629 or request a callback. Home cleaning, housekeeping and bond cleans across Kallangur, North Lakes, Moreton Bay and North Brisbane."
+  businessSchema
+>
+  <ContactSection headingLevel="h1" heading="Let’s take cleaning off your list." />
+
+  <section class="section" aria-label="Service area and social links">
+    <div class="wrap split">
+      <ServiceArea />
+      <div class="contact-more">
+        <h2>Questions</h2>
+        <FaqList only={[4, 5, 0, 1]} />
+        <h2 class="contact-more__social-heading">See recent work</h2>
+        <p>
+          Hibiscus shares cleans and tips on
+          {
+            socials.map((s, i) => (
+              <>
+                {i > 0 && ' and '}
+                <a href={s.url} rel="noopener" target="_blank">
+                  {s.label}
+                  <span class="visually-hidden"> (opens in a new tab)</span>
+                </a>
+              </>
+            ))
+          }
+          .
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-more h2 {
+    margin-bottom: var(--space-l);
+  }
+
+  .contact-more__social-heading {
+    margin-top: var(--space-3xl);
+    font-size: var(--step-2);
+  }
+</style>

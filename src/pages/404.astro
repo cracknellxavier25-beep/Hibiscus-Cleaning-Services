@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PhoneIcon from '../components/PhoneIcon.astro';
+import { business, cta } from '../content/site';
+---
+
+<BaseLayout title="Page not found | Hibiscus Cleaning Services" description="This page couldn’t be found." index={false}>
+  <section class="page-intro">
+    <div class="wrap">
+      <h1>This page couldn’t be found.</h1>
+      <p class="lede">
+        The link may be out of date. Head back to the <a href="/">home page</a>, or call if you’d like to arrange a clean.
+      </p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href={business.phone.href} data-cta="404">
+          <PhoneIcon />
+          {cta.call}
+        </a>
+        <a class="btn btn--secondary" href="/">Go to the home page</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

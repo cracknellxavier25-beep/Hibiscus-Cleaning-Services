@@ -1,0 +1,442 @@
+---
+import { business, serviceOptions, serviceArea } from '../content/site';
+import { formMode, formEndpoint, formAccessKey } from '../lib/form-config';
+
+interface Props {
+  titleLevel?: 'h2' | 'h3';
+}
+const { titleLevel = 'h3' } = Astro.props;
+const Title = titleLevel;
+
+const smsBody = encodeURIComponent('Hi Hibiscus, please call me back about a clean.\nName: \nSuburb: \nService: ');
+const smsHref = `${business.phone.sms}?&body=${smsBody}`;
+
+const formAttrs: Record<string, string> =
+  formMode === 'netlify'
+    ? { name: 'callback', method: 'POST', action: '/contact?sent=1', 'data-netlify': 'true', 'netlify-honeypot': 'company' }
+    : formMode === 'endpoint'
+      ? { method: 'POST', action: formEndpoint }
+      : { method: 'POST' };
+---
+
+<div class="callback" id="callback">
+  <Title class="callback__title">Request a callback</Title>
+
+  {
+    formMode === 'off' ? (
+      <div class="callback__fallback">
+        <p>
+          Text your name, suburb and the service you need to <strong>{business.phone.display}</strong>, and the team will
+          call you back to talk it through.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href={smsHref}>
+            Text {business.phone.display}
+          </a>
+          <a class="btn btn--secondary" href={business.phone.href} data-cta="callback-fallback">
+            Call instead
+          </a>
+        </div>
+        <p class="callback__small">
+          You can also{' '}
+          <a href={business.social.facebook.url} rel="noopener" target="_blank">
+            message Hibiscus on Facebook<span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+          .
+        </p>
+      </div>
+    ) : (
+      <form class="callback__form" data-callback-form data-mode={formMode} {...formAttrs}>
+        <p class="callback__intro">Leave your details and Hibiscus will call you back. All fields are required unless marked optional.</p>
+
+        {formMode === 'netlify' && <input type="hidden" name="form-name" value="callback" />}
+        {formMode === 'endpoint' && formAccessKey && <input type="hidden" name="access_key" value={formAccessKey} />}
+        <input type="hidden" name="subject" value="New callback request from the website" />
+
+        <div class="field field--hp" aria-hidden="true">
+          <label for="cb-company">Leave this field empty</label>
+          <input id="cb-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="cb-name">Name</label>
+          <input id="cb-name" name="name" type="text" autocomplete="name" required maxlength="100" aria-describedby="cb-name-error" />
+          <p class="field__error" id="cb-name-error" data-error-for="name" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="cb-phone">Phone</label>
+          <input
+            id="cb-phone"
+            name="phone"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            required
+            maxlength="25"
+            pattern="[0-9+()\-.\s]{8,25}"
+            aria-describedby="cb-phone-error"
+          />
+          <p class="field__error" id="cb-phone-error" data-error-for="phone" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="cb-suburb">Suburb</label>
+          <input
+            id="cb-suburb"
+            name="suburb"
+            type="text"
+            autocomplete="address-level2"
+            required
+            maxlength="80"
+            list="cb-suburbs"
+            aria-describedby="cb-suburb-error"
+          />
+          <datalist id="cb-suburbs">
+            {serviceArea.suburbs.map((s) => <option value={s} />)}
+          </datalist>
+          <p class="field__error" id="cb-suburb-error" data-error-for="suburb" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="cb-service">Service</label>
+          <select id="cb-service" name="service" required aria-describedby="cb-service-error">
+            <option value="">Choose a service</option>
+            {serviceOptions.map((o) => <option value={o}>{o}</option>)}
+          </select>
+          <p class="field__error" id="cb-service-error" data-error-for="service" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="cb-time">
+            Best time to call <span class="field__optional">(optional)</span>
+          </label>
+          <select id="cb-time" name="callback_time" aria-describedby="cb-time-hint">
+            <option value="No preference">No preference</option>
+            <option value="Morning">Morning</option>
+            <option value="Afternoon">Afternoon</option>
+          </select>
+          <p class="field__hint" id="cb-time-hint">A preference only, not an appointment.</p>
+        </div>
+
+        <div class="field field--wide">
+          <label for="cb-message">
+            Anything we should know? <span class="field__optional">(optional)</span>
+          </label>
+          <textarea id="cb-message" name="message" rows="3" maxlength="1000" aria-describedby="cb-message-hint" />
+          <p class="field__hint" id="cb-message-hint">For example, the size of the home, how often you’d like a clean, or your move-out date.</p>
+        </div>
+
+        <p class="callback__privacy field--wide">
+          Your details are only used to respond to this enquiry. See the <a href="/privacy">privacy policy</a>.
+        </p>
+
+        <div class="field--wide callback__actions">
+          <button class="btn btn--primary" type="submit" data-submit>
+            Request a callback
+          </button>
+        </div>
+
+        <div class="callback__status field--wide" role="status" aria-live="polite" data-status></div>
+      </form>
+    )
+  }
+</div>
+
+<script>
+  import { track } from '../scripts/track';
+
+  const PHONE = '0435 895 629';
+  const PHONE_HREF = 'tel:+61435895629';
+
+  const messages: Record<string, (v: string) => string | null> = {
+    name: (v) => (v.trim().length < 2 ? 'Enter your name.' : null),
+    phone: (v) => {
+      if (!v.trim()) return 'Enter a phone number so the team can call you back.';
+      const cleaned = v.replace(/[\s().\-]/g, '');
+      return /^\+?\d{8,15}$/.test(cleaned) ? null : 'Enter a phone number with 8 to 15 digits, for example 0412 345 678.';
+    },
+    suburb: (v) => (v.trim().length < 2 ? 'Enter your suburb.' : null),
+    service: (v) => (v ? null : 'Choose the service you’re interested in.'),
+  };
+
+  function setError(form: HTMLFormElement, name: string, msg: string | null) {
+    const field = form.elements.namedItem(name) as HTMLInputElement | null;
+    const err = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+    if (!field || !err) return;
+    field.setAttribute('aria-invalid', String(Boolean(msg)));
+    err.hidden = !msg;
+    err.textContent = msg ?? '';
+  }
+
+  function validate(form: HTMLFormElement) {
+    let firstInvalid: HTMLElement | null = null;
+    for (const [name, check] of Object.entries(messages)) {
+      const field = form.elements.namedItem(name) as HTMLInputElement | null;
+      if (!field) continue;
+      const msg = check(field.value);
+      setError(form, name, msg);
+      if (msg && !firstInvalid) firstInvalid = field;
+    }
+    return firstInvalid;
+  }
+
+  async function deliver(form: HTMLFormElement, mode: string): Promise<'sent' | 'preview'> {
+    const data = new FormData(form);
+    if (mode === 'preview') {
+      await new Promise((r) => setTimeout(r, 500));
+      return 'preview';
+    }
+    let res: Response;
+    if (mode === 'netlify') {
+      const body = new URLSearchParams();
+      data.forEach((v, k) => body.append(k, String(v)));
+      res = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+    } else {
+      res = await fetch(form.action, { method: 'POST', headers: { Accept: 'application/json' }, body: data });
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return 'sent';
+  }
+
+  document.querySelectorAll<HTMLFormElement>('[data-callback-form]').forEach((form) => {
+    const mode = form.dataset.mode ?? 'off';
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    let started = false;
+    let pending = false;
+
+    form.noValidate = true;
+
+    form.addEventListener('input', (e) => {
+      if (!started) {
+        started = true;
+        track('callback_form_start');
+      }
+      const target = e.target as HTMLInputElement;
+      // Clear an error as soon as the field becomes valid.
+      if (target.getAttribute('aria-invalid') === 'true' && messages[target.name]) {
+        setError(form, target.name, messages[target.name](target.value));
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (pending) return;
+
+      const invalid = validate(form);
+      if (invalid) {
+        status.textContent = '';
+        invalid.focus();
+        return;
+      }
+
+      // Honeypot filled: quietly stop (bots get no signal).
+      const hp = form.elements.namedItem('company') as HTMLInputElement | null;
+      if (hp?.value) return;
+
+      pending = true;
+      submit.disabled = true;
+      submit.textContent = 'Sending…';
+      status.className = 'callback__status field--wide';
+      status.textContent = '';
+
+      try {
+        const result = await deliver(form, mode);
+        const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim().split(/\s+/)[0];
+        if (result === 'preview') {
+          status.classList.add('is-preview');
+          status.innerHTML = `<strong>Preview only: this request was not sent.</strong> Form delivery hasn’t been connected yet. To reach Hibiscus now, call <a href="${PHONE_HREF}">${PHONE}</a>.`;
+        } else {
+          track('callback_submit_success');
+          status.classList.add('is-success');
+          status.innerHTML = `<strong>Thanks, ${escapeHtml(name)}. Your callback request has been sent.</strong> The Hibiscus team will be in touch to talk through your clean.`;
+          form.reset();
+        }
+      } catch {
+        status.classList.add('is-error');
+        status.innerHTML = `<strong>Your request couldn’t be sent.</strong> Please try again, or call <a href="${PHONE_HREF}">${PHONE}</a>.`;
+      } finally {
+        pending = false;
+        submit.disabled = false;
+        submit.textContent = 'Request a callback';
+      }
+    });
+  });
+
+  function escapeHtml(s: string) {
+    return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  }
+</script>
+
+<style>
+  .callback {
+    background: var(--ivory);
+    color: var(--charcoal);
+    border-radius: var(--radius-img);
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .callback__title {
+    font-size: var(--step-2);
+    margin-bottom: var(--space-s);
+  }
+
+  .callback__intro,
+  .callback__fallback > p:first-child {
+    color: var(--charcoal);
+    margin-bottom: var(--space-l);
+    max-width: 34em;
+  }
+
+  .callback__small {
+    margin-top: var(--space-l);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .callback__form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-l) var(--space-m);
+  }
+
+  .callback__intro {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  .field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .field--hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .field label {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .field__optional {
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.65rem 0.85rem;
+    border: 1.5px solid var(--field-line);
+    border-radius: var(--radius-ui);
+    background: var(--white);
+    color: var(--charcoal);
+    font: inherit;
+    font-size: 1.0625rem;
+    transition: border-color 160ms var(--ease);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+
+  .field select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23781c3b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.1rem;
+    padding-right: 2.5rem;
+  }
+
+  .field input:hover,
+  .field select:hover,
+  .field textarea:hover {
+    border-color: var(--muted);
+  }
+
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    border-color: var(--burgundy);
+    outline: 3px solid rgb(120 28 59 / 0.25);
+    outline-offset: 0;
+  }
+
+  .field [aria-invalid='true'] {
+    border-color: var(--error);
+  }
+
+  .field__error {
+    color: var(--error);
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  .field__error::before {
+    content: '! ';
+  }
+
+  .field__hint {
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+
+  .callback__privacy {
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+
+  .callback__actions .btn {
+    width: 100%;
+  }
+
+  .callback__actions .btn:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+
+  .callback__status:empty {
+    display: none;
+  }
+
+  .callback__status {
+    padding: var(--space-m);
+    border-radius: var(--radius-ui);
+    border: 1px solid var(--gold);
+    background: var(--blush);
+  }
+
+  .callback__status.is-error {
+    border-color: var(--error);
+  }
+
+  .callback__status.is-success {
+    border-color: var(--burgundy);
+  }
+
+  @media (max-width: 34em) {
+    .callback__form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

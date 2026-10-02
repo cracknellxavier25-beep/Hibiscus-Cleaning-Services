@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { business } from '../content/site';
+import { formMode } from '../lib/form-config';
+---
+
+<BaseLayout
+  title="Privacy policy | Hibiscus Cleaning Services"
+  description="How Hibiscus Cleaning Services handles the details you share when you call, text or request a callback."
+>
+  <section class="page-intro">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Home</a></li>
+          <li aria-current="page">Privacy</li>
+        </ol>
+      </nav>
+      <h1>Privacy policy</h1>
+      <p class="lede">How {business.name} handles the details you share with us.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="prose policy">
+        <p class="muted">Last updated 2 October 2026</p>
+
+        <h2>What we collect</h2>
+        {
+          formMode === 'off' ? (
+            <p>
+              This website doesn’t collect personal information through forms. If you call, text or message us, we
+              receive the details you choose to share, such as your name, phone number, suburb and the cleaning you
+              need.
+            </p>
+          ) : (
+            <p>
+              When you request a callback, we ask for your name, phone number, suburb and the service you’re interested
+              in. You can also choose to tell us a preferred time to call and anything else about your clean. If you
+              call, text or message us, we receive the details you choose to share.
+            </p>
+          )
+        }
+        <p>We don’t ask for your street address, date of birth, financial details or any account details through this website.</p>
+
+        <h2>How we use it</h2>
+        <p>
+          We use your details only to respond to your enquiry: to call you back, discuss your clean and arrange a time.
+          We don’t use them for marketing, and we don’t sell or share them with anyone else, except where a service
+          provider handles them on our behalf (see below) or the law requires it.
+        </p>
+
+        <h2>Service providers</h2>
+        {
+          formMode === 'off' ? (
+            <p>This website is hosted by a web hosting provider, which may keep standard server logs, such as IP addresses and pages requested, for security and reliability.</p>
+          ) : (
+            <p>
+              Callback requests are delivered to us by a form-handling service, which stores the submission so it can
+              be sent to us. This website is also hosted by a web hosting provider, which may keep standard server logs
+              for security and reliability.
+            </p>
+          )
+        }
+
+        <h2>Cookies and tracking</h2>
+        <p>
+          This website doesn’t use advertising or analytics cookies. Fonts and images are served from this website, not
+          from third-party services. Links to Facebook, Instagram and Google take you to those platforms, which have
+          their own privacy policies.
+        </p>
+
+        <h2>Keeping and deleting your details</h2>
+        <p>
+          We keep enquiry details only as long as we need them to respond to you and provide any cleaning you arrange.
+          To ask what we hold about you, correct it or have it deleted, call us on{' '}
+          <a href={business.phone.href}>{business.phone.display}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .policy h2 {
+    font-size: var(--step-2);
+    margin-top: var(--space-2xl);
+  }
+</style>

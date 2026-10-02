@@ -1,0 +1,105 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import InclusionList from '../../components/InclusionList.astro';
+import Steps from '../../components/Steps.astro';
+import FaqList from '../../components/FaqList.astro';
+import ContactSection from '../../components/ContactSection.astro';
+import PhoneIcon from '../../components/PhoneIcon.astro';
+import { business, services, cta } from '../../content/site';
+
+const svc = services.general;
+const standard = svc.inclusions.filter((i) => !i.onRequest);
+const onRequest = svc.inclusions.filter((i) => i.onRequest);
+---
+
+<BaseLayout
+  title="General cleaning and housekeeping | Hibiscus Cleaning Services"
+  description="Weekly, fortnightly or regular home cleaning and housekeeping around Kallangur, North Lakes and Moreton Bay: bathrooms, kitchen, dusting, floors, linen and laundry on request."
+>
+  <section class="page-intro">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Home</a></li>
+          <li><a href="/#services">Services</a></li>
+          <li aria-current="page">General cleaning</li>
+        </ol>
+      </nav>
+      <h1>General cleaning and housekeeping</h1>
+      <p class="lede">{svc.description}</p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href={business.phone.href} data-cta="general-intro">
+          <PhoneIcon />
+          {cta.call}
+        </a>
+        <a class="btn btn--secondary" href="#callback">{cta.callback}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="frequency-heading">
+    <div class="wrap split">
+      <div class="split__aside">
+        <h2 id="frequency-heading">A clean that fits your week</h2>
+      </div>
+      <div class="split__main prose">
+        <p class="lede">
+          General cleaning is available weekly, fortnightly or on another regular schedule, depending on current
+          availability.
+        </p>
+        <p>
+          It’s designed for a lived-in home: keeping bathrooms and the kitchen fresh, dust and floors under control, and
+          the house reset and presentable. What happens at each visit is agreed with you, so the time goes where your
+          home needs it most.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="included-heading">
+    <div class="wrap">
+      <div class="split split--head">
+        <h2 id="included-heading">What’s included</h2>
+        <p class="muted">
+          These are the advertised inclusions for a general clean. Not every item is needed at every visit; you’ll
+          agree the scope when you discuss your clean.
+        </p>
+      </div>
+      <InclusionList items={standard} />
+
+      <div class="split split--head request">
+        <h2 class="request__heading">Available on request</h2>
+        <p class="muted">Mention these when you enquire so they can be included in your quote.</p>
+      </div>
+      <InclusionList items={onRequest} />
+
+      <p class="note">
+        General cleaning covers everyday bathroom care and doesn’t include deep cleaning. Moving out?
+        <a class="text-link" href={services.bond.href}>See bond and exit cleaning</a>.
+      </p>
+    </div>
+  </section>
+
+  <Steps />
+
+  <section class="section section--ruled" aria-labelledby="faq-heading">
+    <div class="wrap split">
+      <h2 id="faq-heading" class="split__aside">Questions</h2>
+      <div class="split__main">
+        <FaqList only={[0, 2, 1, 4, 5]} />
+      </div>
+    </div>
+  </section>
+
+  <ContactSection />
+</BaseLayout>
+
+<style>
+  .request {
+    margin-top: var(--space-3xl);
+  }
+
+  .request__heading {
+    font-size: var(--step-2);
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+import type { Inclusion } from '../content/site';
+
+interface Props {
+  items: readonly Inclusion[];
+}
+const { items } = Astro.props;
+---
+
+<ul class="inclusions">
+  {
+    items.map((i) => (
+      <li class="inclusions__item">
+        <h3 class="inclusions__title">{i.title}</h3>
+        {i.detail && <p>{i.detail}</p>}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .inclusions {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+    border-top: 1px solid var(--inclusion-line, var(--line));
+  }
+
+  .inclusions__item {
+    padding-block: var(--space-l);
+    border-bottom: 1px solid var(--inclusion-line, var(--line));
+  }
+
+  .inclusions__title {
+    font-size: var(--step-1);
+    line-height: 1.3;
+  }
+
+  .inclusions__item p {
+    margin-top: var(--space-2xs);
+    color: var(--muted);
+    max-width: 26em;
+  }
+
+  @media (max-width: 47.99em) {
+    .inclusions {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

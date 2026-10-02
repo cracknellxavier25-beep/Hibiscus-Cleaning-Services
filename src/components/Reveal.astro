@@ -1,0 +1,445 @@
+---
+/**
+ * Before/after cleaning reveal.
+ *
+ * The "after" layer sits on the left and is clipped to --pos, so moving the
+ * handle to the right wipes the glass clean behind it, like a squeegee.
+ *
+ * - Server-rendered complete state; no JS required to see both photos.
+ * - One optional 750ms intro sweep (25% → 70%) per tab session, only when the
+ *   images are ready and the component is on screen. Skipped for reduced
+ *   motion, data saver, prior interaction, or if it would arrive late.
+ * - Pointer drag (touch keeps vertical scrolling), native range input for
+ *   keyboard and assistive tech, plus Show before / Show after buttons.
+ */
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  before: ImageMetadata;
+  after: ImageMetadata;
+  altBefore: string;
+  altAfter: string;
+  /** 'comparison' for a genuine aligned pair; 'static' shows the after image only. */
+  mode?: 'comparison' | 'static';
+  /** Accessible name for the slider. */
+  label?: string;
+  sizes?: string;
+  priority?: boolean;
+  id?: string;
+}
+
+const {
+  before,
+  after,
+  altBefore,
+  altAfter,
+  mode = 'comparison',
+  label = 'Reveal the cleaned shower glass',
+  sizes = '(min-width: 64em) 30rem, (min-width: 48em) 45vw, calc(100vw - 2rem)',
+  priority = false,
+  id = 'reveal',
+} = Astro.props;
+
+const imgProps = {
+  widths: [416, 624, 832],
+  sizes,
+  formats: ['webp'] as 'webp'[],
+  fallbackFormat: 'jpg' as const,
+  quality: 72,
+  draggable: false,
+};
+---
+
+{
+  mode === 'static' ? (
+    <figure class="reveal reveal--static">
+      <div class="reveal__frame">
+        <Picture src={after} alt={altAfter} {...imgProps} loading={priority ? 'eager' : 'lazy'} fetchpriority={priority ? 'high' : 'auto'} class="reveal__img" />
+      </div>
+      <slot name="caption" />
+    </figure>
+  ) : (
+    <figure class="reveal" data-reveal>
+      <div class="reveal__frame" data-reveal-frame>
+        <Picture
+          src={before}
+          alt={altBefore}
+          {...imgProps}
+          loading={priority ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : 'auto'}
+          class="reveal__img"
+          pictureAttributes={{ class: 'reveal__layer' }}
+        />
+        <div class="reveal__after" data-reveal-after>
+          <Picture
+            src={after}
+            alt={altAfter}
+            {...imgProps}
+            loading={priority ? 'eager' : 'lazy'}
+            class="reveal__img"
+            pictureAttributes={{ class: 'reveal__layer' }}
+          />
+        </div>
+        <div class="reveal__divider" aria-hidden="true">
+          <span class="reveal__handle">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 7-5 5 5 5M15 7l5 5-5 5" />
+            </svg>
+          </span>
+        </div>
+        <span class="reveal__label reveal__label--after" aria-hidden="true">After</span>
+        <span class="reveal__label reveal__label--before" aria-hidden="true">Before</span>
+      </div>
+
+      <div class="reveal__controls">
+        <label class="visually-hidden" for={`${id}-range`}>{label}</label>
+        <input
+          class="reveal__range visually-hidden"
+          id={`${id}-range`}
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value="70"
+          aria-valuetext="70% of the after image revealed"
+          data-reveal-range
+        />
+        <p class="reveal__hint">Drag to reveal the difference</p>
+        <div class="reveal__buttons">
+          <button type="button" class="reveal__btn" data-reveal-set="0">Show before</button>
+          <button type="button" class="reveal__btn" data-reveal-set="100">Show after</button>
+        </div>
+      </div>
+      <slot name="caption" />
+    </figure>
+  )
+}
+
+<script>
+  import { track } from '../scripts/track';
+
+  declare global {
+    interface Window {
+      __hibRevealReady?: boolean;
+    }
+  }
+
+  const INTRO_FROM = 25;
+  const REST = 70;
+  const INTRO_MS = 750;
+  const LATE_MS = 4000; // don't start an intro more than this long after navigation
+  const SESSION_KEY = 'hib-reveal-seen';
+
+  const root = document.documentElement;
+  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+  function initReveal(el: HTMLElement) {
+    const frame = el.querySelector<HTMLElement>('[data-reveal-frame]');
+    const range = el.querySelector<HTMLInputElement>('[data-reveal-range]');
+    if (!frame || !range) return;
+
+    let pos = root.classList.contains('reveal-intro') ? INTRO_FROM : REST;
+    let anim = 0;
+    let frameReq = 0;
+    let pendingX: number | null = null;
+    let rect: DOMRect | null = null;
+    let dragging = false;
+    let interacted = false;
+    let lastText = -1;
+
+    const render = (value: number) => {
+      pos = Math.min(100, Math.max(0, value));
+      el.style.setProperty('--pos', `${pos}%`);
+      const rounded = Math.round(pos);
+      if (rounded !== lastText) {
+        lastText = rounded;
+        range.value = String(rounded);
+        range.setAttribute('aria-valuetext', `${rounded}% of the after image revealed`);
+      }
+    };
+
+    const stopAnim = () => {
+      if (anim) cancelAnimationFrame(anim);
+      anim = 0;
+    };
+
+    const animateTo = (target: number, duration: number, done?: () => void) => {
+      stopAnim();
+      if (duration <= 0 || reduceMotion()) {
+        render(target);
+        done?.();
+        return;
+      }
+      const from = pos;
+      const start = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        render(from + (target - from) * easeOut(t));
+        if (t < 1) anim = requestAnimationFrame(step);
+        else {
+          anim = 0;
+          done?.();
+        }
+      };
+      anim = requestAnimationFrame(step);
+    };
+
+    const settle = () => {
+      root.classList.remove('reveal-intro');
+      if (pos !== REST && !interacted) render(REST);
+    };
+
+    const markInteracted = () => {
+      if (interacted) return;
+      interacted = true;
+      settle();
+      track('reveal_interaction');
+    };
+
+    // Inline --pos now owns the state; the html class only covered first paint.
+    render(pos);
+    window.__hibRevealReady = true;
+
+    /* ---------- Intro sweep ---------- */
+    if (pos === INTRO_FROM) {
+      const imgs = Array.from(el.querySelectorAll('img'));
+      const ready = Promise.all(
+        imgs.map((img) =>
+          img.complete ? (img.naturalWidth > 0 ? Promise.resolve() : Promise.reject()) : img.decode(),
+        ),
+      );
+
+      ready
+        .then(() => {
+          if (interacted) return;
+          if (performance.now() > LATE_MS || !('IntersectionObserver' in window)) return settle();
+          const io = new IntersectionObserver(
+            ([entry]) => {
+              io.disconnect();
+              if (interacted) return;
+              if (!entry.isIntersecting || performance.now() > LATE_MS) return settle();
+              try {
+                sessionStorage.setItem(SESSION_KEY, '1');
+              } catch {
+                /* storage unavailable: intro may replay, which is harmless */
+              }
+              animateTo(REST, INTRO_MS, () => root.classList.remove('reveal-intro'));
+            },
+            { threshold: 0.5 },
+          );
+          io.observe(frame);
+        })
+        .catch(settle); // missing media → static final state
+    }
+
+    /* ---------- Pointer dragging ---------- */
+    const setFromX = (clientX: number) => {
+      if (!rect || rect.width === 0) return;
+      render(((clientX - rect.left) / rect.width) * 100);
+    };
+
+    const queueX = (clientX: number) => {
+      pendingX = clientX;
+      if (frameReq) return;
+      frameReq = requestAnimationFrame(() => {
+        frameReq = 0;
+        if (pendingX !== null) setFromX(pendingX);
+        pendingX = null;
+      });
+    };
+
+    frame.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      stopAnim();
+      markInteracted();
+      dragging = true;
+      rect = frame.getBoundingClientRect(); // measured once per gesture
+      try {
+        frame.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+      // Mouse and pen jump to the click point; touch waits for a horizontal
+      // move so a vertical swipe still scrolls the page (touch-action: pan-y).
+      if (e.pointerType !== 'touch') {
+        e.preventDefault();
+        setFromX(e.clientX);
+      }
+    });
+
+    frame.addEventListener('pointermove', (e) => {
+      if (dragging) queueX(e.clientX);
+    });
+
+    const endDrag = () => {
+      dragging = false;
+    };
+    frame.addEventListener('pointerup', endDrag);
+    frame.addEventListener('pointercancel', endDrag);
+    frame.addEventListener('lostpointercapture', endDrag);
+
+    /* ---------- Keyboard / assistive tech ---------- */
+    range.addEventListener('input', () => {
+      stopAnim();
+      markInteracted();
+      render(Number(range.value));
+    });
+
+    /* ---------- Buttons ---------- */
+    el.querySelectorAll<HTMLButtonElement>('[data-reveal-set]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        markInteracted();
+        animateTo(Number(btn.dataset.revealSet), 320);
+      });
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(initReveal);
+</script>
+
+<style>
+  .reveal {
+    --pos: 70%;
+    margin: 0;
+    width: 100%;
+  }
+
+  :global(.reveal-intro) .reveal {
+    --pos: 25%;
+  }
+
+  .reveal__frame {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-img);
+    background: var(--blush-deep);
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  [data-reveal] .reveal__frame {
+    cursor: ew-resize;
+  }
+
+  .reveal__frame :global(.reveal__layer),
+  .reveal__frame :global(.reveal__img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .reveal__frame :global(.reveal__img) {
+    object-fit: cover;
+    object-position: 50% 50%;
+    pointer-events: none;
+  }
+
+  .reveal__after {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+  }
+
+  .reveal__divider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--pos);
+    width: 2px;
+    margin-left: -1px;
+    background: var(--ivory);
+    box-shadow: 0 0 0 0.5px rgb(48 40 43 / 0.25);
+    pointer-events: none;
+  }
+
+  .reveal__handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--ivory);
+    color: var(--burgundy);
+    box-shadow: 0 2px 10px rgb(48 40 43 / 0.22);
+  }
+
+  .reveal:has(.reveal__range:focus-visible) .reveal__handle {
+    outline: 3px solid var(--burgundy);
+    outline-offset: 3px;
+  }
+
+  .reveal__label {
+    position: absolute;
+    top: 0.875rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-ui);
+    background: rgb(251 247 243 / 0.94);
+    color: var(--burgundy);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    pointer-events: none;
+  }
+
+  .reveal__label--after {
+    left: 0.875rem;
+  }
+
+  .reveal__label--before {
+    right: 0.875rem;
+  }
+
+  .reveal__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs) var(--space-m);
+    margin-top: var(--space-s);
+  }
+
+  .reveal__hint {
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .reveal__buttons {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  .reveal__btn {
+    min-height: 2.75rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--burgundy);
+    font: 600 0.9375rem/1.2 var(--font-sans);
+    cursor: pointer;
+    transition: background-color 160ms var(--ease), border-color 160ms var(--ease);
+  }
+
+  .reveal__btn:hover {
+    border-color: var(--burgundy);
+    background: var(--blush);
+  }
+
+  /* Controls need JavaScript; without it the comparison simply rests at 70%. */
+  :global(.no-js) .reveal__controls {
+    display: none;
+  }
+  :global(.no-js) .reveal__frame {
+    cursor: default;
+  }
+</style>

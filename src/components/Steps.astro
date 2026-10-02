@@ -1,0 +1,78 @@
+---
+interface Props {
+  heading?: string;
+}
+const { heading = 'How to get started' } = Astro.props;
+
+const steps = [
+  { title: 'Tell us what you need.', text: 'Call or request a callback with the service you’re after and your suburb.' },
+  { title: 'Discuss your clean.', text: 'Talk through the scope, your quote and availability with the team.' },
+  { title: 'Arrange a suitable time.', text: 'Finalise the details directly with Hibiscus.' },
+];
+---
+
+<section class="steps section" aria-labelledby="steps-heading">
+  <div class="wrap">
+    <h2 id="steps-heading" class="steps__heading">{heading}</h2>
+    <ol class="steps__list">
+      {
+        steps.map((s, i) => (
+          <li class="steps__item">
+            <span class="steps__num" aria-hidden="true">{i + 1}</span>
+            <h3 class="steps__title">{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .steps {
+    border-top: 1px solid var(--line);
+  }
+
+  .steps__heading {
+    max-width: 14em;
+  }
+
+  .steps__list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2xl) clamp(1.5rem, 1rem + 3vw, 4rem);
+    margin-top: var(--space-2xl);
+  }
+
+  .steps__item {
+    position: relative;
+    padding-top: var(--space-l);
+    border-top: 1px solid var(--gold);
+  }
+
+  .steps__num {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 2.75rem;
+    line-height: 1;
+    color: var(--burgundy);
+    margin-bottom: var(--space-m);
+  }
+
+  .steps__title {
+    font-size: var(--step-1);
+    margin-bottom: var(--space-xs);
+  }
+
+  .steps__item p {
+    max-width: 22em;
+  }
+
+  @media (max-width: 47.99em) {
+    .steps__list {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+  }
+</style>

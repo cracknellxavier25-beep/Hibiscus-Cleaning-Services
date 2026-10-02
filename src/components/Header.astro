@@ -1,0 +1,304 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo.png';
+import PhoneIcon from './PhoneIcon.astro';
+import { business, nav, cta } from '../content/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header class="site-header" data-header>
+  <div class="wrap site-header__inner">
+    <a class="brand" href="/">
+      <Image src={logo} alt="" width={52} height={52} densities={[1, 2]} loading="eager" class="brand__logo" />
+      <span class="brand__text">
+        <span class="brand__name">Hibiscus</span>
+        <span class="brand__sub">Cleaning Services</span>
+      </span>
+    </a>
+
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={item.href === path ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a class="btn btn--primary header-call" href={business.phone.href} data-cta="header" aria-label={cta.call}>
+        <PhoneIcon />
+        <span class="header-call__long">{cta.call}</span>
+        <span class="header-call__short">Call</span>
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle hidden>
+        <span class="menu-toggle__bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const navEl = document.getElementById('site-nav');
+  const header = document.querySelector<HTMLElement>('[data-header]');
+
+  if (toggle && navEl && header) {
+    toggle.hidden = false;
+    header.classList.add('has-menu');
+
+    const setOpen = (open: boolean, returnFocus = false) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      header.classList.toggle('menu-open', open);
+      if (!open && returnFocus) toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+
+    navEl.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && header.classList.contains('menu-open')) setOpen(false, true);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (header.classList.contains('menu-open') && !header.contains(e.target as Node)) setOpen(false);
+    });
+
+    // Close the mobile panel if the viewport grows past the breakpoint.
+    window.matchMedia('(min-width: 60em)').addEventListener('change', (mq) => {
+      if (mq.matches) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--ivory);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-l);
+    min-height: var(--header-h);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--burgundy);
+    margin-right: auto;
+    min-width: 0;
+  }
+
+  .brand__logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.05;
+  }
+
+  .brand__name {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    letter-spacing: 0.01em;
+  }
+
+  /* Mirrors the spaced capitals of the logo lockup. */
+  .brand__sub {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+    color: var(--burgundy);
+  }
+
+  .site-nav ul {
+    list-style: none;
+    display: flex;
+    gap: clamp(1rem, 0.5rem + 1.5vw, 2rem);
+  }
+
+  .site-nav a {
+    display: inline-block;
+    padding-block: 0.75rem;
+    color: var(--charcoal);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1.5px solid transparent;
+    transition: color 160ms var(--ease), border-color 160ms var(--ease);
+  }
+
+  .site-nav a:hover,
+  .site-nav a[aria-current='page'] {
+    color: var(--burgundy);
+    border-bottom-color: var(--gold);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .header-call {
+    min-height: 2.875rem;
+    padding: 0.5rem 1.15rem;
+    font-size: 1rem;
+  }
+
+  .header-call__short {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: none;
+    width: 2.875rem;
+    height: 2.875rem;
+    border: 1.5px solid var(--line);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--burgundy);
+    cursor: pointer;
+    place-items: center;
+  }
+
+  .menu-toggle__bars,
+  .menu-toggle__bars::before,
+  .menu-toggle__bars::after {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 160ms var(--ease), opacity 160ms var(--ease);
+  }
+
+  .menu-toggle__bars {
+    position: relative;
+  }
+
+  .menu-toggle__bars::before,
+  .menu-toggle__bars::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .menu-toggle__bars::before {
+    top: -6px;
+  }
+  .menu-toggle__bars::after {
+    top: 6px;
+  }
+
+  .menu-open .menu-toggle__bars {
+    background: transparent;
+  }
+  .menu-open .menu-toggle__bars::before {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .menu-open .menu-toggle__bars::after {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* ---------- Narrow layouts ---------- */
+  @media (max-width: 59.99em) {
+    .site-header__inner {
+      flex-wrap: wrap;
+      gap: var(--space-s);
+    }
+
+    /* Without JavaScript the links stay visible as a row under the brand. */
+    .site-nav {
+      order: 3;
+      width: 100%;
+      padding-bottom: var(--space-xs);
+    }
+
+    .site-nav ul {
+      flex-wrap: wrap;
+      gap: 0 1.25rem;
+    }
+
+    .has-menu .menu-toggle {
+      display: grid;
+    }
+
+    .has-menu .site-nav {
+      display: none;
+      padding-bottom: var(--space-m);
+      border-top: 1px solid var(--line);
+    }
+
+    .has-menu.menu-open .site-nav {
+      display: block;
+    }
+
+    .has-menu .site-nav ul {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .has-menu .site-nav a {
+      display: block;
+      padding-block: 0.9rem;
+      font-size: 1.125rem;
+      border-bottom: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 26em) {
+    .brand__logo {
+      width: 44px;
+      height: 44px;
+    }
+    .brand__name {
+      font-size: 1.3rem;
+    }
+    .brand__sub {
+      font-size: 0.625rem;
+      letter-spacing: 0.14em;
+    }
+    .header-call {
+      padding-inline: 0.9rem;
+    }
+    .header-call__long {
+      display: none;
+    }
+    .header-call__short {
+      display: inline;
+    }
+  }
+
+  @media (max-width: 22em) {
+    .brand {
+      gap: 0.5rem;
+    }
+    .brand__sub {
+      display: none;
+    }
+  }
+</style>

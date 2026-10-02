@@ -1,0 +1,100 @@
+---
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileActionBar from '../components/MobileActionBar.astro';
+import logo from '../assets/brand/logo.png';
+import { business } from '../content/site';
+import { localBusinessSchema } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Set false for pages that shouldn't be indexed (e.g. 404). */
+  index?: boolean;
+  /** Include LocalBusiness structured data (homepage + contact). */
+  businessSchema?: boolean;
+}
+
+const { title, description, index = true, businessSchema = false } = Astro.props;
+const site = Astro.site;
+const canonical = site ? new URL(Astro.url.pathname, site).href : undefined;
+const ogImage = site ? new URL('/og-image.jpg', site).href : undefined;
+const favicon = await getImage({ src: logo, width: 64, height: 64, format: 'png' });
+const touchIcon = await getImage({ src: logo, width: 180, height: 180, format: 'png' });
+const schema = businessSchema ? localBusinessSchema(site, '/og-image.jpg') : null;
+---
+
+<!doctype html>
+<html lang="en-AU" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {!index && <meta name="robots" content="noindex" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#fbf7f3" />
+    <link rel="icon" type="image/png" href={favicon.src} />
+    <link rel="apple-touch-icon" href={touchIcon.src} />
+    <link rel="preload" href="/fonts/lora-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={business.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="en_AU" />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta property="og:image:width" content="1200" />}
+    {ogImage && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.remove('no-js');
+        d.classList.add('js');
+        // Decide before first paint whether the one-off cleaning reveal may play,
+        // so the comparison never jumps. Skips: reduced motion, data saver, already seen.
+        try {
+          var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          var saveData = navigator.connection && navigator.connection.saveData;
+          var seen = sessionStorage.getItem('hib-reveal-seen');
+          if (!reduce && !saveData && !seen) d.classList.add('reveal-intro');
+        } catch (e) {}
+        // Safety net: if the reveal script never runs, settle on the final state.
+        setTimeout(function () {
+          if (!window.__hibRevealReady) d.classList.remove('reveal-intro');
+        }, 3000);
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <MobileActionBar />
+
+    <script>
+      import { track } from '../scripts/track';
+      document.addEventListener('click', (e) => {
+        const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="tel:"]');
+        if (link) track('call_link_click', { location: link.dataset.cta ?? 'inline' });
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  main:focus {
+    outline: none;
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+/**
+ * Verified reviews only. Renders nothing until `reviews` in src/content/site.ts
+ * contains published entries with permission.
+ */
+import { publishedReviews } from '../content/site';
+
+const items = publishedReviews().slice(0, 3);
+---
+
+{
+  items.length > 0 && (
+    <section class="reviews section" aria-labelledby="reviews-heading">
+      <div class="wrap">
+        <h2 id="reviews-heading">In their words</h2>
+        <ul class="reviews__list">
+          {items.map((r) => (
+            <li>
+              <figure class="review">
+                {r.rating && (
+                  <p class="review__rating">
+                    <span class="visually-hidden">Rated {r.rating} out of 5</span>
+                    <span aria-hidden="true">{'★'.repeat(r.rating)}</span>
+                  </p>
+                )}
+                <blockquote>
+                  <p>{r.text}</p>
+                </blockquote>
+                <figcaption>
+                  {r.author},{' '}
+                  <a href={r.url} rel="noopener" target="_blank">
+                    {r.platform} review<span class="visually-hidden"> (opens in a new tab)</span>
+                  </a>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .reviews__list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-2xl);
+    margin-top: var(--space-2xl);
+  }
+
+  .review {
+    margin: 0;
+  }
+
+  .review__rating {
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .review blockquote {
+    margin: var(--space-s) 0;
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--charcoal);
+  }
+
+  .review figcaption {
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+</style>
