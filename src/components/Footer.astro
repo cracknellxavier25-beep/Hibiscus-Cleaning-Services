@@ -3,7 +3,21 @@ import { Image } from 'astro:assets';
 import logo from '../assets/brand/logo.png';
 import { business, services, isPublished } from '../content/site';
 
+import { execSync } from 'node:child_process';
+
 const year = new Date().getFullYear();
+
+// Demo builds (no SITE_URL yet) show a short build code, so it's easy to
+// confirm which version is live. Hidden once the real domain is configured.
+let build = (process.env.WORKERS_CI_COMMIT_SHA ?? process.env.CF_PAGES_COMMIT_SHA ?? '').slice(0, 7);
+if (!build) {
+  try {
+    build = execSync('git rev-parse --short=7 HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    build = '';
+  }
+}
+const showBuild = !Astro.site && Boolean(build);
 const socials = Object.values(business.social).filter((s) => s.publish);
 ---
 
@@ -60,7 +74,10 @@ const socials = Object.values(business.social).filter((s) => s.publish);
   </div>
 
   <div class="wrap site-footer__base">
-    <p>&copy; {year} {business.name}</p>
+    <p>
+      &copy; {year} {business.name}
+      {showBuild && <span class="site-footer__build">Demo build {build}</span>}
+    </p>
     <p><a href="/privacy">Privacy</a></p>
   </div>
 </footer>
@@ -148,6 +165,11 @@ const socials = Object.values(business.social).filter((s) => s.publish);
     border-top: 1px solid var(--blush-deep);
     font-size: var(--step--1);
     color: var(--muted);
+  }
+
+  .site-footer__build {
+    margin-left: 0.75em;
+    opacity: 0.8;
   }
 
   .site-footer__base a {

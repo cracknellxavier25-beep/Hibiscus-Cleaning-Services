@@ -180,6 +180,11 @@ console.log('Intro and motion');
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
   await page.goto(PROD + '/');
+  const hit = await page.evaluate(() => {
+    const r = document.querySelector('.hero .btn--secondary').getBoundingClientRect();
+    return document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)?.closest('.btn')?.textContent?.trim();
+  });
+  check('taps during the intro reach the page buttons', hit === 'Request a callback', String(hit));
   await page.mouse.click(400, 400);
   await page.waitForTimeout(400);
   check('click skips the intro', !(await page.locator('[data-intro]').isVisible()));

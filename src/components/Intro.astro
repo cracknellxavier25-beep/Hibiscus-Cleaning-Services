@@ -8,7 +8,7 @@
  * - Shown only when the head script adds `html.intro` (motion allowed, not yet
  *   seen this session). Otherwise it's display:none.
  * - Entirely CSS-timed and ends hidden, so it can never get stuck, even if
- *   JavaScript fails. Click, tap or any key skips it.
+ *   JavaScript fails. Taps go straight through to the page (so a button tapped during the intro works first time) and also skip it.
  * - Total about 2.7s. Content underneath is already loaded and interactive after.
  */
 ---
@@ -52,7 +52,8 @@
       root.classList.add('intro-skip');
       finish();
     };
-    wrap.addEventListener('pointerdown', skip, { once: true });
+    // Taps pass straight through to the page; any tap or key also skips the intro.
+    window.addEventListener('pointerdown', skip, { once: true, capture: true });
     window.addEventListener('keydown', skip, { once: true });
     window.setTimeout(finish, 2750);
   }
@@ -70,7 +71,7 @@
     inset: 0;
     z-index: 1000;
     display: block;
-    cursor: pointer;
+    pointer-events: none;
     animation: intro-out 2.7s linear forwards;
   }
 
