@@ -48,7 +48,7 @@ All text pairings are at least 5.8:1. Form field borders are `#8A767C` (4:1).
 
 The owner asked for a site that catches the eye, with plenty of animation, while staying professional. All motion uses transform and opacity only, and plays once per element unless noted.
 
-**Opening intro.** The page loads behind fogged glass with the Hibiscus wordmark on it, and a squeegee wipes it clear in 2.2s.
+**Opening intro.** The page loads behind fogged glass with the Hibiscus wordmark on it, and a squeegee wipes it clear (1.5s sweep, about 2.7s in total). The squeegee travels fully off screen, handle and all; the fog is masked by a container that moves with the blade, so the clean edge always sits at the blade.
 - It plays once per tab session, and click or any key skips it.
 - It's CSS-timed with a hard stop, so it can't get stuck even if scripts fail.
 
@@ -65,7 +65,7 @@ The owner asked for a site that catches the eye, with plenty of animation, while
 - **On scroll:** they spring up out of the page at a slight angle, staggered.
 - **On hover:** they tilt in 3D towards the pointer with a soft sheen.
 
-**Buttons.** On hover they spring up with an elastic ease, sampled from a real spring equation into CSS `linear()`, and a polish gleam sweeps across solid buttons.
+**Buttons.** On devices with a mouse, hovering makes them spring up with an elastic ease, sampled from a real spring equation into CSS `linear()`, and a polish gleam sweeps across solid buttons. Hover effects are switched off on touch screens, because iOS otherwise needs two taps.
 
 **Photo pairs.** The before/after cards sit fanned like prints, and spread on hover or tap.
 

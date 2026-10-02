@@ -9,11 +9,12 @@
  *   seen this session). Otherwise it's display:none.
  * - Entirely CSS-timed and ends hidden, so it can never get stuck, even if
  *   JavaScript fails. Click, tap or any key skips it.
- * - Total 2.2s. Content underneath is already loaded and interactive after.
+ * - Total about 2.7s. Content underneath is already loaded and interactive after.
  */
 ---
 
 <div class="intro-wrap" aria-hidden="true" data-intro>
+  <div class="intro-mask">
   <div class="intro-glass">
     <div class="intro-mark">
       <span class="intro-mark__name">Hibiscus</span>
@@ -27,14 +28,15 @@
     <span class="intro-drop" style="--x:55%;--y:14%;--r:5px"></span>
     <span class="intro-drop" style="--x:10%;--y:58%;--r:6px"></span>
   </div>
+  </div>
   <div class="intro-squeegee">
     <span class="intro-squeegee__blade"></span>
     <span class="intro-squeegee__handle"></span>
   </div>
   <div class="intro-sparkles">
-    <svg style="--x:22%;--y:30%;--d:1.25s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
-    <svg style="--x:48%;--y:64%;--d:1.5s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
-    <svg style="--x:76%;--y:36%;--d:1.78s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
+    <svg style="--x:22%;--y:30%;--d:1.4s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
+    <svg style="--x:48%;--y:64%;--d:1.75s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
+    <svg style="--x:76%;--y:36%;--d:2.1s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
   </div>
 </div>
 
@@ -52,7 +54,7 @@
     };
     wrap.addEventListener('pointerdown', skip, { once: true });
     window.addEventListener('keydown', skip, { once: true });
-    window.setTimeout(finish, 2300);
+    window.setTimeout(finish, 2750);
   }
 </script>
 
@@ -62,12 +64,14 @@
   }
 
   .intro .intro-wrap {
+    --wipe: 1500ms;
+    --wipe-ease: cubic-bezier(0.55, 0, 0.3, 1);
     position: fixed;
     inset: 0;
     z-index: 1000;
     display: block;
     cursor: pointer;
-    animation: intro-out 2.25s linear forwards;
+    animation: intro-out 2.7s linear forwards;
   }
 
   .intro-skip .intro-wrap {
@@ -86,8 +90,16 @@
       rgb(251 247 243 / 0.72);
     -webkit-backdrop-filter: blur(16px) saturate(1.1);
     backdrop-filter: blur(16px) saturate(1.1);
-    clip-path: inset(0 0 0 0);
-    animation: intro-wipe 950ms cubic-bezier(0.65, 0, 0.35, 1) 1.05s forwards;
+    animation: intro-counter var(--wipe) var(--wipe-ease) 1.05s forwards;
+  }
+
+  /* The mask rides with the squeegee, so the clean edge is always at the blade.
+     The glass inside moves the opposite way and stays put on screen. */
+  .intro-mask {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    animation: intro-travel var(--wipe) var(--wipe-ease) 1.05s forwards;
   }
 
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -141,8 +153,8 @@
   .intro-squeegee {
     position: absolute;
     inset: 0;
-    transform: translateX(-12vw);
-    animation: intro-blade 950ms cubic-bezier(0.65, 0, 0.35, 1) 1.05s forwards;
+    transform: translateX(-30px);
+    animation: intro-travel var(--wipe) var(--wipe-ease) 1.05s forwards;
     pointer-events: none;
   }
 
@@ -197,15 +209,22 @@
     }
   }
 
-  @keyframes intro-wipe {
+  /* 220px past the edge so the handle leaves the screen completely. */
+  @keyframes intro-travel {
+    from {
+      transform: translateX(-30px);
+    }
     to {
-      clip-path: inset(0 0 0 100%);
+      transform: translateX(calc(100vw + 220px));
     }
   }
 
-  @keyframes intro-blade {
+  @keyframes intro-counter {
+    from {
+      transform: translateX(30px);
+    }
     to {
-      transform: translateX(112vw);
+      transform: translateX(calc(-100vw - 220px));
     }
   }
 

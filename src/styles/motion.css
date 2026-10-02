@@ -33,9 +33,19 @@
     transform 650ms var(--spring), box-shadow 300ms var(--ease);
 }
 
-.motion .btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 24px -12px rgb(120 28 59 / 0.55);
+/* Hover effects only where a real pointer hovers. On touch screens iOS
+   treats a hover that changes the button as the first tap. */
+@media (hover: hover) and (pointer: fine) {
+  .motion .btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 24px -12px rgb(120 28 59 / 0.55);
+  }
+
+  .motion .btn--primary:hover::after,
+  .motion .btn--light:hover::after {
+    transform: translateX(330%) skewX(-18deg);
+    transition: transform 750ms var(--ease-out-expo);
+  }
 }
 
 .motion .btn:active {
@@ -63,11 +73,6 @@
   z-index: 1;
 }
 
-.motion .btn--primary:hover::after,
-.motion .btn--light:hover::after {
-  transform: translateX(330%) skewX(-18deg);
-  transition: transform 750ms var(--ease-out-expo);
-}
 
 /* ---------- Heading line reveal (word masks, staggered per line) ---------- */
 .motion [data-anim='lines']:not(.is-split) {

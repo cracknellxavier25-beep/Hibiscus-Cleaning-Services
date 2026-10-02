@@ -71,8 +71,8 @@ function boot() {
   window.__hibMotion = true;
   const introActive = root.classList.contains('intro');
   // With the intro, content in view starts as the squeegee passes over it.
-  const firstDelay = introActive ? 1000 : 60;
-  const flowerDelay = introActive ? 1500 : 60;
+  const firstDelay = introActive ? 1150 : 60;
+  const flowerDelay = introActive ? 1900 : 60;
   const bootTime = performance.now();
 
   document.querySelectorAll<HTMLElement>('[data-anim="lines"]').forEach(splitLines);
