@@ -1,0 +1,12 @@
+{
+  // Cloudflare Workers static-assets deployment (free *.workers.dev URL).
+  // Build: `npm run build` → dist/. Deploy: `npx wrangler deploy`.
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "hibiscus-cleaning-services",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}

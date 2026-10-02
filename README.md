@@ -14,7 +14,31 @@ npm run test:e2e       # builds 3 variants and runs browser checks (needs Playwr
 
 Node 20+ is required. For the browser tests on a fresh machine, run `npx playwright install chromium` once.
 
-The output is plain static files, so it can be hosted anywhere: Netlify, Cloudflare Pages, Vercel, or any web host.
+The output is plain static files in `dist/`, so it can be hosted anywhere. It's set up for Cloudflare (below).
+
+## Deploy to Cloudflare (free `*.workers.dev` address)
+
+`wrangler.jsonc` deploys `dist/` as a Cloudflare Workers static site. `public/_headers` sets caching and security headers. The easiest route is to let Cloudflare build straight from GitHub:
+
+1. Sign in or sign up (free) at [dash.cloudflare.com](https://dash.cloudflare.com).
+2. Go to **Workers & Pages → Create → Import a repository**. Connect GitHub and pick `Hibiscus-Cleaning-Services`.
+3. Enter these settings:
+   - **Project name:** `hibiscus-cleaning-services`
+   - **Build command:** `npm run build`
+   - **Deploy command:** `npx wrangler deploy`
+   - **Production branch:** the branch holding this code (currently `claude/awesome-ptolemy-8or41u`)
+   - **Environment variables:** none needed for the demo
+4. Click **Deploy**. The site goes live at `https://hibiscus-cleaning-services.<your-account>.workers.dev`. Every push to the branch redeploys it.
+
+From your own computer you can deploy instead with `npx wrangler login`, then `npm run deploy`.
+
+**While no domain is set** (no `SITE_URL`), every page carries `noindex`, so the demo stays out of Google. The callback form stays off and visitors are offered text or call instead.
+
+**When you're ready to launch:**
+
+1. Add a custom domain in Cloudflare (**Settings → Domains & Routes**).
+2. Set `SITE_URL` as a build variable. This turns on indexing, canonical URLs and the sitemap.
+3. Connect the form (below) if you want it.
 
 ## Updating content
 

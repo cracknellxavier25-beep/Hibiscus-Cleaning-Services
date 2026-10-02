@@ -19,6 +19,8 @@ interface Props {
 
 const { title, description, index = true, businessSchema = false } = Astro.props;
 const site = Astro.site;
+// No real domain configured yet = demo/preview deployment: keep it out of search results.
+const noindex = !index || !site;
 const canonical = site ? new URL(Astro.url.pathname, site).href : undefined;
 const ogImage = site ? new URL('/og-image.jpg', site).href : undefined;
 const favicon = await getImage({ src: logo, width: 64, height: 64, format: 'png' });
@@ -33,7 +35,7 @@ const schema = businessSchema ? localBusinessSchema(site, '/og-image.jpg') : nul
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {!index && <meta name="robots" content="noindex" />}
+    {noindex && <meta name="robots" content="noindex" />}
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="theme-color" content="#fbf7f3" />
     <link rel="icon" type="image/png" href={favicon.src} />

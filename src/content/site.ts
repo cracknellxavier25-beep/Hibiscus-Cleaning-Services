@@ -175,9 +175,9 @@ export interface Claim extends Sourced {
 }
 
 export const claims: Claim[] = [
-  { label: 'Fully insured', source: 'General cleaning flyer', status: 'supplied', publish: true },
-  { label: 'Pet-friendly products', source: 'General cleaning flyer', status: 'supplied', publish: true },
-  { label: 'Eco-friendly products', source: 'General cleaning flyer', status: 'supplied', publish: true },
+  { label: 'Fully insured', source: 'General cleaning flyer; confirmed by owner, 2 Oct 2026', status: 'confirmed', publish: true },
+  { label: 'Pet-friendly products', source: 'General cleaning flyer; confirmed by owner, 2 Oct 2026', status: 'confirmed', publish: true },
+  { label: 'Eco-friendly products', source: 'General cleaning flyer; confirmed by owner, 2 Oct 2026', status: 'confirmed', publish: true },
   { label: 'Registered ABN', source: 'General cleaning flyer shows "ABN" (number not supplied)', status: 'supplied', publish: false },
 ];
 
@@ -249,19 +249,20 @@ export const services = {
     name: 'Commercial cleaning',
     summary:
       'Hibiscus also takes on commercial cleaning. Call to talk through your space and what it needs.',
-    source: 'Bond/exit flyer lists "Commercial"; scope not yet confirmed',
-    status: 'supplied',
+    source: 'Bond/exit flyer lists "Residential | Commercial"; owner confirmed flyer content, 2 Oct 2026',
+    status: 'confirmed',
     publish: true,
   },
   care: {
     slug: 'care',
     name: 'DVA, My Aged Care and insurance cleaning',
     summary:
-      'Ask about cleaning arranged through DVA, My Aged Care or insurance.',
-    source: 'Bond/exit flyer lists "DVA | My Aged Care | Insurance"; arrangements not confirmed',
-    status: 'unverified',
-    // Hidden until the owner confirms exact arrangements (see launch checklist).
-    publish: false,
+      'Hibiscus also cleans for DVA, My Aged Care and insurance work. Call to talk through your situation and how the clean is arranged.',
+    // Wording follows the flyer only. Don't describe Hibiscus as a registered or
+    // approved provider, or mention funding or billing, without evidence.
+    source: 'Bond/exit flyer lists "DVA | My Aged Care | Insurance & more"; owner confirmed flyer content, 2 Oct 2026',
+    status: 'confirmed',
+    publish: true,
   },
 } as const;
 
@@ -271,6 +272,7 @@ export const serviceOptions = [
   'General cleaning (one-off)',
   'Bond or exit cleaning',
   'Commercial cleaning',
+  'DVA, My Aged Care or insurance cleaning',
   'Something else',
 ];
 
@@ -288,7 +290,7 @@ export const media = {
     detail:
       'Cloudy, soap-scummed glass brought back to clear, with no haze and no streaks.',
     sourceUrl: 'https://www.instagram.com/p/DSAEI0KieCf/',
-    source: 'Hibiscus Instagram post, 8 Dec 2025, supplied by owner as a screenshot. Aligned crop for comparison; no content altered.',
+    source: 'Hibiscus Instagram post, 8 Dec 2025; side-by-side pair supplied by owner, 2 Oct 2026. Split, aligned and cropped for comparison; no content altered.',
     status: 'confirmed',
     /** 'comparison' = genuine before/after pair. Switch to 'static' to show one image only. */
     mode: 'comparison' as 'comparison' | 'static',

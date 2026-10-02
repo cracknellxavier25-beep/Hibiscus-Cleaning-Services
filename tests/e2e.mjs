@@ -144,6 +144,8 @@ console.log('Production output');
   check('LocalBusiness schema without street address', ld['@type'] === 'LocalBusiness' && !ld.address.streetAddress);
   check('reviews section hidden without verified reviews', (await page.locator('#reviews-heading').count()) === 0);
   check('no canonical without SITE_URL', (await page.locator('link[rel=canonical]').count()) === 0);
+  check('demo build (no SITE_URL) is noindex', (await page.locator('meta[name=robots][content=noindex]').count()) === 1);
+  check('care services line published', (await page.locator('.services__more h3', { hasText: 'My Aged Care' }).count()) === 1);
   await page.close();
 }
 

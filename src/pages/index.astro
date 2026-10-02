@@ -17,6 +17,7 @@ import { business, services, media, claims, cta, isPublished } from '../content/
 
 const shower = media.showerGlass;
 const showClaims = claims.filter(isPublished);
+const moreServices = [services.commercial, services.care].filter((m) => isPublished(m));
 const generalHighlights = ['Bathroom care', 'Kitchen detailing', 'Dusting', 'Vacuuming and mopping', 'Linen changes'];
 const bondHighlights = [
   'Detailed kitchen cleaning',
@@ -123,16 +124,20 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
       </div>
 
       {
-        isPublished(services.commercial) && (
-          <div class="services__more">
-            <h3>{services.commercial.name}</h3>
-            <p>
-              {services.commercial.summary}{' '}
-              <a href={business.phone.href} data-cta="commercial">
-                {cta.call}
-              </a>
-            </p>
-          </div>
+        moreServices.length > 0 && (
+          <ul class="services__more">
+            {moreServices.map((m) => (
+              <li>
+                <h3>{m.name}</h3>
+                <p>
+                  {m.summary}{' '}
+                  <a href={business.phone.href} data-cta={m.slug}>
+                    {cta.call}
+                  </a>
+                </p>
+              </li>
+            ))}
+          </ul>
         )
       }
     </div>
@@ -148,7 +153,7 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
               <Picture
                 src={beforeFull}
                 alt={shower.alt.before}
-                widths={[228, 456]}
+                widths={[252, 504]}
                 sizes="(min-width: 60em) 18rem, 45vw"
                 formats={['webp']}
                 fallbackFormat="jpg"
@@ -161,7 +166,7 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
               <Picture
                 src={afterFull}
                 alt={shower.alt.after}
-                widths={[228, 457]}
+                widths={[252, 504]}
                 sizes="(min-width: 60em) 18rem, 45vw"
                 formats={['webp']}
                 fallbackFormat="jpg"
@@ -452,10 +457,10 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
   }
 
   .services__more {
+    list-style: none;
     display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    gap: var(--space-s) clamp(1.25rem, 0.5rem + 2vw, 2rem);
-    align-items: baseline;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-xl) clamp(1.25rem, 0.5rem + 2vw, 2rem);
     margin-top: var(--space-2xl);
     padding-top: var(--space-l);
     border-top: 1px solid var(--line);
@@ -463,10 +468,12 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
 
   .services__more h3 {
     font-size: var(--step-1);
+    margin-bottom: var(--space-xs);
   }
 
   .services__more p {
     color: var(--charcoal);
+    max-width: 32em;
   }
 
   .services__more a {
@@ -507,7 +514,7 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
 
   .work__photos img {
     width: 100%;
-    aspect-ratio: 456 / 931;
+    aspect-ratio: 504 / 1041;
     object-fit: cover;
     border-radius: var(--radius-img);
   }

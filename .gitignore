@@ -9,3 +9,4 @@ screenshots/tmp/
 .DS_Store
 dist-preview/
 dist-endpoint/
+.wrangler/
