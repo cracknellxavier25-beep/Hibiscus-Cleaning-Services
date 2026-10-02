@@ -1,0 +1,246 @@
+---
+/**
+ * Opening "clean glass" moment, once per tab session.
+ *
+ * The page loads behind a pane of fogged glass with the Hibiscus wordmark on
+ * it. A squeegee sweeps across and wipes the glass clear, revealing the site.
+ *
+ * - Shown only when the head script adds `html.intro` (motion allowed, not yet
+ *   seen this session). Otherwise it's display:none.
+ * - Entirely CSS-timed and ends hidden, so it can never get stuck, even if
+ *   JavaScript fails. Click, tap or any key skips it.
+ * - Total 2.2s. Content underneath is already loaded and interactive after.
+ */
+---
+
+<div class="intro-wrap" aria-hidden="true" data-intro>
+  <div class="intro-glass">
+    <div class="intro-mark">
+      <span class="intro-mark__name">Hibiscus</span>
+      <span class="intro-mark__sub">Cleaning Services</span>
+      <span class="intro-mark__tag">Luxury in every finish</span>
+    </div>
+    <span class="intro-drop" style="--x:18%;--y:22%;--r:9px"></span>
+    <span class="intro-drop" style="--x:72%;--y:30%;--r:6px"></span>
+    <span class="intro-drop" style="--x:84%;--y:68%;--r:11px"></span>
+    <span class="intro-drop" style="--x:30%;--y:76%;--r:7px"></span>
+    <span class="intro-drop" style="--x:55%;--y:14%;--r:5px"></span>
+    <span class="intro-drop" style="--x:10%;--y:58%;--r:6px"></span>
+  </div>
+  <div class="intro-squeegee">
+    <span class="intro-squeegee__blade"></span>
+    <span class="intro-squeegee__handle"></span>
+  </div>
+  <div class="intro-sparkles">
+    <svg style="--x:22%;--y:30%;--d:1.25s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
+    <svg style="--x:48%;--y:64%;--d:1.5s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
+    <svg style="--x:76%;--y:36%;--d:1.78s" viewBox="0 0 24 24"><path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12 7-1 11-5 12-12Z" /></svg>
+  </div>
+</div>
+
+<script>
+  const wrap = document.querySelector<HTMLElement>('[data-intro]');
+  const root = document.documentElement;
+  if (wrap && root.classList.contains('intro')) {
+    const finish = () => {
+      root.classList.add('intro-done');
+      window.setTimeout(() => root.classList.remove('intro'), 400);
+    };
+    const skip = () => {
+      root.classList.add('intro-skip');
+      finish();
+    };
+    wrap.addEventListener('pointerdown', skip, { once: true });
+    window.addEventListener('keydown', skip, { once: true });
+    window.setTimeout(finish, 2300);
+  }
+</script>
+
+<style is:global>
+  .intro-wrap {
+    display: none;
+  }
+
+  .intro .intro-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: block;
+    cursor: pointer;
+    animation: intro-out 2.25s linear forwards;
+  }
+
+  .intro-skip .intro-wrap {
+    animation: intro-skip 250ms var(--ease) forwards;
+  }
+
+  /* Fogged glass: blurs and veils the page behind it. */
+  .intro-glass {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(60% 50% at 30% 30%, rgb(255 255 255 / 0.55), transparent 70%),
+      radial-gradient(50% 60% at 75% 70%, rgb(244 229 233 / 0.6), transparent 70%),
+      rgb(251 247 243 / 0.72);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    backdrop-filter: blur(16px) saturate(1.1);
+    clip-path: inset(0 0 0 0);
+    animation: intro-wipe 950ms cubic-bezier(0.65, 0, 0.35, 1) 1.05s forwards;
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .intro-glass {
+      background-color: var(--ivory);
+    }
+  }
+
+  .intro-mark {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    color: var(--burgundy);
+    text-align: center;
+    animation: intro-mark 700ms var(--ease-out-expo) both;
+  }
+
+  .intro-mark__name {
+    font-family: var(--font-serif);
+    font-size: clamp(3rem, 2rem + 6vw, 6.5rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  .intro-mark__sub {
+    font-size: clamp(0.75rem, 0.6rem + 0.6vw, 1rem);
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  .intro-mark__tag {
+    margin-top: 0.75rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.3rem);
+    color: var(--gold);
+  }
+
+  .intro-drop {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--r);
+    height: calc(var(--r) * 1.25);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.25) 45%, rgb(120 28 59 / 0.12));
+    box-shadow: 0 1px 2px rgb(48 40 43 / 0.15);
+  }
+
+  /* The squeegee travels with the edge of the wipe. */
+  .intro-squeegee {
+    position: absolute;
+    inset: 0;
+    transform: translateX(-12vw);
+    animation: intro-blade 950ms cubic-bezier(0.65, 0, 0.35, 1) 1.05s forwards;
+    pointer-events: none;
+  }
+
+  .intro-squeegee__blade {
+    position: absolute;
+    top: 4vh;
+    bottom: 4vh;
+    left: 0;
+    width: 14px;
+    margin-left: -7px;
+    border-radius: 7px;
+    background: linear-gradient(90deg, #4a3a40, #30282b 40%, #6a5a60);
+    box-shadow: 10px 0 24px rgb(255 255 255 / 0.9), -2px 0 8px rgb(48 40 43 / 0.25);
+  }
+
+  .intro-squeegee__blade::before {
+    content: '';
+    position: absolute;
+    inset: -2px -8px -2px auto;
+    width: 9px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #e7d3a6, var(--gold) 50%, #8a6a38);
+  }
+
+  .intro-squeegee__handle {
+    position: absolute;
+    top: 50%;
+    left: -150px;
+    width: 150px;
+    height: 22px;
+    margin-top: -11px;
+    border-radius: 11px 0 0 11px;
+    background: linear-gradient(180deg, #9a2b52, var(--burgundy) 55%, var(--burgundy-dark));
+    box-shadow: 0 6px 16px rgb(48 40 43 / 0.25);
+  }
+
+  .intro-sparkles svg {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 26px;
+    fill: var(--gold);
+    opacity: 0;
+    transform: scale(0);
+    animation: intro-sparkle 700ms var(--spring) var(--d) both;
+  }
+
+  @keyframes intro-mark {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+
+  @keyframes intro-wipe {
+    to {
+      clip-path: inset(0 0 0 100%);
+    }
+  }
+
+  @keyframes intro-blade {
+    to {
+      transform: translateX(112vw);
+    }
+  }
+
+  @keyframes intro-sparkle {
+    0% {
+      opacity: 0;
+      transform: scale(0) rotate(0deg);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1) rotate(45deg);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.4) rotate(90deg);
+    }
+  }
+
+  @keyframes intro-out {
+    0%,
+    96% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  @keyframes intro-skip {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+</style>

@@ -1,9 +1,11 @@
 ---
 import '../styles/global.css';
+import '../styles/motion.css';
 import { getImage } from 'astro:assets';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileActionBar from '../components/MobileActionBar.astro';
+import Intro from '../components/Intro.astro';
 import logo from '../assets/brand/logo.png';
 import { business } from '../content/site';
 import { localBusinessSchema } from '../lib/seo';
@@ -61,22 +63,31 @@ const schema = businessSchema ? localBusinessSchema(site, '/og-image.jpg') : nul
         var d = document.documentElement;
         d.classList.remove('no-js');
         d.classList.add('js');
-        // Decide before first paint whether the one-off cleaning reveal may play,
-        // so the comparison never jumps. Skips: reduced motion, data saver, already seen.
+        // Decide before first paint which motion may play, so nothing jumps.
+        // Reduced motion: none. Data saver: no intro or auto-sweep.
         try {
           var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           var saveData = navigator.connection && navigator.connection.saveData;
-          var seen = sessionStorage.getItem('hib-reveal-seen');
-          if (!reduce && !saveData && !seen) d.classList.add('reveal-intro');
+          if (!reduce) d.classList.add('motion');
+          if (!reduce && !saveData && !sessionStorage.getItem('hib-reveal-seen')) d.classList.add('reveal-intro');
+          if (!reduce && !saveData && !sessionStorage.getItem('hib-intro-seen')) {
+            d.classList.add('intro');
+            sessionStorage.setItem('hib-intro-seen', '1');
+          }
         } catch (e) {}
-        // Safety net: if the reveal script never runs, settle on the final state.
+        // Safety nets: if scripts never run, show everything in its final state.
         setTimeout(function () {
           if (!window.__hibRevealReady) d.classList.remove('reveal-intro');
-        }, 3000);
+          if (!window.__hibMotion) d.classList.remove('motion');
+        }, 2600);
+        setTimeout(function () {
+          d.classList.remove('intro');
+        }, 2700);
       })();
     </script>
   </head>
   <body>
+    <Intro />
     <a class="skip-link" href="#main">Skip to content</a>
     <Header />
     <main id="main" tabindex="-1">
@@ -86,6 +97,7 @@ const schema = businessSchema ? localBusinessSchema(site, '/og-image.jpg') : nul
     <MobileActionBar />
 
     <script>
+      import '../scripts/motion';
       import { track } from '../scripts/track';
       document.addEventListener('click', (e) => {
         const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="tel:"]');

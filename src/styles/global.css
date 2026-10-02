@@ -335,6 +335,42 @@ a:hover {
   margin-top: var(--space-xl);
 }
 
+.page-intro--flower {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.page-intro--flower .wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.page-intro__flower {
+  position: absolute;
+  top: 50%;
+  right: max(-3rem, calc((100vw - var(--max)) / 2 - 4rem));
+  width: min(30vw, 24rem);
+  transform: translateY(-50%);
+}
+
+.page-intro--flower .lede,
+.page-intro--flower h1 {
+  max-width: min(32em, 60vw);
+}
+
+@media (max-width: 59.99em) {
+  .page-intro--flower .lede,
+  .page-intro--flower h1 {
+    max-width: none;
+  }
+  .page-intro__flower {
+    right: -22vw;
+    width: 60vw;
+    opacity: 0.35;
+  }
+}
+
 .breadcrumb {
   font-size: var(--step--1);
   color: var(--muted);

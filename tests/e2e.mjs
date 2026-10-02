@@ -91,7 +91,18 @@ const PREV = 'http://localhost:4402';
 const end = await serve(join(root, 'dist-endpoint'), 4403);
 const END = 'http://localhost:4403';
 const browser = await chromium.launch();
+// Most checks run as a returning visitor in the same session (intro already seen).
+const seenIntro = () => sessionStorage.setItem('hib-intro-seen', '1');
+async function newCtx(opts = {}) {
+  const ctx = await browser.newContext(opts);
+  await ctx.addInitScript(seenIntro);
+  return ctx;
+}
+async function newPg(opts = {}) {
+  return (await newCtx(opts)).newPage();
+}
 
+const BOND = '/services/bond-exit-cleaning';
 const getPos = (page) =>
   page.$eval('[data-reveal]', (el) => parseFloat(getComputedStyle(el).getPropertyValue('--pos')));
 
@@ -100,7 +111,7 @@ console.log('Pages, layout and links');
 {
   const seen = new Set();
   for (const width of [320, 390, 768, 1440]) {
-    const ctx = await browser.newContext({ viewport: { width, height: 900 } });
+    const ctx = await newCtx({ viewport: { width, height: 900 } });
     const page = await ctx.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
@@ -119,7 +130,7 @@ console.log('Pages, layout and links');
     check(`no JS errors @${width}`, errors.length === 0, errors.join('; '));
     await ctx.close();
   }
-  const page = await browser.newPage();
+  const page = await newPg();
   for (const href of seen) {
     const [path, hash] = href.split('#');
     const res = await page.goto(PROD + (path || '/'), { waitUntil: 'domcontentloaded' });
@@ -132,7 +143,7 @@ console.log('Pages, layout and links');
 /* ---------------- Production output safety ---------------- */
 console.log('Production output');
 {
-  const page = await browser.newPage();
+  const page = await newPg();
   await page.goto(PROD + '/');
   const html = await page.content();
   check('production has no callback form', (await page.locator('[data-callback-form]').count()) === 0);
@@ -149,17 +160,96 @@ console.log('Production output');
   await page.close();
 }
 
-/* ---------------- Reveal: intro sweep ---------------- */
-console.log('Reveal');
+/* ---------------- Opening intro (fogged glass + squeegee) ---------------- */
+console.log('Intro and motion');
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
   await page.goto(PROD + '/');
-  await page.waitForTimeout(1600);
-  check('intro settles at 70%', Math.abs((await getPos(page)) - 70) < 0.5, String(await getPos(page)));
-  check('intro marks session', (await page.evaluate(() => sessionStorage.getItem('hib-reveal-seen'))) === '1');
+  check('intro shows on first visit', await page.locator('[data-intro]').isVisible());
+  await page.waitForTimeout(3000);
+  check('intro is gone after 3s', !(await page.locator('[data-intro]').isVisible()));
+  check('hero heading revealed', await page.locator('#hero-heading').evaluate((el) => el.classList.contains('is-in')));
+  check('hero heading keeps its accessible name', (await page.getAttribute('#hero-heading', 'aria-label')) === 'A beautifully clean home. More time for you.');
+  check('hero hibiscus bloomed', await page.locator('.hero .hib').evaluate((el) => el.classList.contains('is-bloom')));
   await page.reload();
-  check('intro does not replay in same session', Math.abs((await getPos(page)) - 70) < 0.5);
+  check('intro does not replay in the same session', !(await page.locator('[data-intro]').isVisible()));
+  await ctx.close();
+}
+{
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  await page.goto(PROD + '/');
+  await page.mouse.click(400, 400);
+  await page.waitForTimeout(400);
+  check('click skips the intro', !(await page.locator('[data-intro]').isVisible()));
+  await ctx.close();
+}
+{
+  // Even if the page's scripts never load, the intro ends and content shows.
+  const ctx = await browser.newContext();
+  await ctx.route(/\/_astro\/.*\.js$/, (r) => r.abort());
+  const page = await ctx.newPage();
+  await page.goto(PROD + '/');
+  await page.waitForTimeout(3200);
+  check('scripts blocked: intro still clears', !(await page.locator('[data-intro]').isVisible()));
+  const op = await page.locator('#services-heading').evaluate((el) => getComputedStyle(el).opacity);
+  check('scripts blocked: headings visible', op === '1', op);
+  await ctx.close();
+}
+{
+  const ctx = await newCtx({ reducedMotion: 'reduce' });
+  const page = await ctx.newPage();
+  await page.goto(PROD + '/');
+  check('reduced motion: no intro', !(await page.locator('[data-intro]').isVisible()));
+  check('reduced motion: no motion class', !(await page.evaluate(() => document.documentElement.classList.contains('motion'))));
+  const op = await page.locator('.promise').first().evaluate((el) => getComputedStyle(el.parentElement).opacity);
+  check('reduced motion: cards visible without scrolling', op === '1', op);
+  await ctx.close();
+}
+{
+  const ctx = await newCtx({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto(PROD + '/');
+  const card = page.locator('.service--general');
+  await card.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1500);
+  check('service card popped in', await card.evaluate((el) => el.parentElement.classList.contains('is-in')));
+  const box = await card.boundingBox();
+  await page.mouse.move(box.x + box.width * 0.85, box.y + box.height * 0.6);
+  await page.mouse.move(box.x + box.width * 0.95, box.y + box.height * 0.55, { steps: 3 });
+  await page.waitForTimeout(150);
+  const tx = await card.evaluate((el) => el.style.getPropertyValue('--tx'));
+  check('card tilts towards the pointer', parseFloat(tx) > 2, tx);
+  const btn = page.locator('.hero .btn--primary');
+  await btn.scrollIntoViewIfNeeded();
+  await btn.hover();
+  await page.waitForTimeout(800);
+  const scale = await btn.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
+  check('button springs up on hover', scale > 1.03 && scale < 1.08, String(scale));
+  await ctx.close();
+}
+
+/* ---------------- Reveal slider (bond page only) ---------------- */
+console.log('Reveal');
+{
+  const page = await newPg();
+  await page.goto(PROD + '/');
+  check('no shower-glass photos on the homepage', (await page.locator('img[src*="shower-glass"], source[srcset*="shower-glass"]').count()) === 0);
+  await page.close();
+}
+{
+  const ctx = await newCtx({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto(PROD + BOND);
+  await page.locator('[data-reveal]').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1800);
+  check('reveal sweep settles at 70%', Math.abs((await getPos(page)) - 70) < 0.5, String(await getPos(page)));
+  check('reveal sweep marks session', (await page.evaluate(() => sessionStorage.getItem('hib-reveal-seen'))) === '1');
+  await page.reload();
+  check('reveal sweep does not replay in same session', Math.abs((await getPos(page)) - 70) < 0.5);
+  await page.locator('[data-reveal]').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1300);
 
   // Keyboard via native range input
   await page.focus('[data-reveal-range]');
@@ -188,46 +278,48 @@ console.log('Reveal');
   await page.mouse.up();
   await page.waitForTimeout(50);
   check('mouse drag moves divider', Math.abs((await getPos(page)) - 30) < 2, String(await getPos(page)));
-
   await ctx.close();
 }
-
-/* ---------------- Reveal: reduced motion, no JS, missing media ---------------- */
 {
-  const ctx = await browser.newContext({ reducedMotion: 'reduce' });
+  const ctx = await newCtx({ reducedMotion: 'reduce' });
   const page = await ctx.newPage();
-  await page.goto(PROD + '/');
-  check('reduced motion: no intro, rests at 70%', (await getPos(page)) === 70);
+  await page.goto(PROD + BOND);
+  check('reduced motion: slider rests at 70%', (await getPos(page)) === 70);
   await page.click('text=Show before');
   check('reduced motion: buttons act instantly', (await getPos(page)) === 0);
   await ctx.close();
 }
 {
-  const ctx = await browser.newContext({ javaScriptEnabled: false });
+  const ctx = await newCtx({ javaScriptEnabled: false });
   const page = await ctx.newPage();
-  await page.goto(PROD + '/');
+  await page.goto(PROD + BOND);
   check('no JS: comparison rests at 70%', (await getPos(page)) === 70);
   check('no JS: controls hidden', !(await page.locator('.reveal__controls').isVisible()));
+  await page.goto(PROD + '/');
   check('no JS: nav links visible', await page.locator('#site-nav a', { hasText: 'Services' }).isVisible());
   check('no JS: hero call visible', await page.locator('.hero a[href^="tel:"]').isVisible());
+  check('no JS: intro never shows', !(await page.locator('[data-intro]').isVisible()));
+  const op = await page.locator('#hero-heading').evaluate((el) => getComputedStyle(el).opacity);
+  check('no JS: headline visible', op === '1', op);
   await ctx.close();
 }
 {
-  const ctx = await browser.newContext();
+  const ctx = await newCtx();
   await ctx.route(/shower-glass-.*aligned/, (r) => r.abort());
   const page = await ctx.newPage();
-  await page.goto(PROD + '/');
+  await page.goto(PROD + BOND);
+  await page.locator('[data-reveal]').scrollIntoViewIfNeeded();
   await page.waitForTimeout(1200);
   check('missing media: settles at 70% without animation', (await getPos(page)) === 70);
-  check('missing media: intro not recorded', (await page.evaluate(() => sessionStorage.getItem('hib-reveal-seen'))) === null);
+  check('missing media: sweep not recorded', (await page.evaluate(() => sessionStorage.getItem('hib-reveal-seen'))) === null);
   await ctx.close();
 }
 
 /* ---------------- Touch: vertical scroll still works ---------------- */
 {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const ctx = await newCtx({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const page = await ctx.newPage();
-  await page.goto(PROD + '/');
+  await page.goto(PROD + BOND);
   const ta = await page.$eval('[data-reveal-frame]', (el) => getComputedStyle(el).touchAction);
   check('reveal frame allows vertical panning', ta === 'pan-y', ta);
   await ctx.close();
@@ -236,7 +328,7 @@ console.log('Reveal');
 /* ---------------- Mobile menu + action bar ---------------- */
 console.log('Navigation and mobile bar');
 {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  const ctx = await newCtx({ viewport: { width: 390, height: 844 }, hasTouch: true });
   const page = await ctx.newPage();
   await page.goto(PROD + '/');
   const toggle = page.locator('[data-menu-toggle]');
@@ -255,7 +347,7 @@ console.log('Navigation and mobile bar');
 /* ---------------- Callback form (preview build) ---------------- */
 console.log('Callback form');
 {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const ctx = await newCtx({ viewport: { width: 390, height: 844 } });
   const page = await ctx.newPage();
   const events = [];
   await page.exposeFunction('__log', (e) => events.push(e));
@@ -289,7 +381,7 @@ console.log('Callback form');
 }
 {
   // Endpoint mode (built with PUBLIC_FORM_PROVIDER=endpoint): success only after a 2xx.
-  const ctx = await browser.newContext();
+  const ctx = await newCtx();
   const page = await ctx.newPage();
   const events = [];
   await page.exposeFunction('__log', (e) => events.push(e));

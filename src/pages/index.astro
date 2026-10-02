@@ -1,7 +1,8 @@
 ---
 import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Reveal from '../components/Reveal.astro';
+import Hibiscus from '../components/Hibiscus.astro';
+import Petals from '../components/Petals.astro';
 import TrustRow from '../components/TrustRow.astro';
 import Steps from '../components/Steps.astro';
 import Reviews from '../components/Reviews.astro';
@@ -9,13 +10,17 @@ import ServiceArea from '../components/ServiceArea.astro';
 import FaqList from '../components/FaqList.astro';
 import ContactSection from '../components/ContactSection.astro';
 import PhoneIcon from '../components/PhoneIcon.astro';
-import beforeAligned from '../assets/work/shower-glass-before-aligned.png';
-import afterAligned from '../assets/work/shower-glass-after-aligned.png';
-import beforeFull from '../assets/work/shower-glass-before-full.png';
-import afterFull from '../assets/work/shower-glass-after-full.png';
+import floorBefore from '../assets/work/shower-floor-before.png';
+import floorAfter from '../assets/work/shower-floor-after.png';
+import cornerBefore from '../assets/work/shower-corner-before.png';
+import cornerAfter from '../assets/work/shower-corner-after.png';
 import { business, services, media, claims, cta, isPublished } from '../content/site';
 
-const shower = media.showerGlass;
+const work = media.showerFloor;
+const photos = {
+  floor: { before: floorBefore, after: floorAfter },
+  corner: { before: cornerBefore, after: cornerAfter },
+} as const;
 const showClaims = claims.filter(isPublished);
 const moreServices = [services.commercial, services.care].filter((m) => isPublished(m));
 const generalHighlights = ['Bathroom care', 'Kitchen detailing', 'Dusting', 'Vacuuming and mopping', 'Linen changes'];
@@ -28,6 +33,13 @@ const bondHighlights = [
 ];
 const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: string[]) =>
   titles.map((t) => list.find((i) => i.title === t)).filter((i): i is { title: string; onRequest?: boolean } => Boolean(i));
+
+const claimIcons: Record<string, string> = {
+  'Fully insured': 'M12 2.5 4 5.5v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10v-6l-8-3Zm-3.2 9.7 2.3 2.3 4.6-4.8',
+  'Pet-friendly products':
+    'M8 9.2a1.9 2.4 0 1 0 0-.1M16 9.2a1.9 2.4 0 1 0 0-.1M4.6 13a1.7 2.1 0 1 0 0-.1M19.4 13a1.7 2.1 0 1 0 0-.1M12 13.2c-2.6 0-4.6 2.6-4.6 4.4 0 1.5 1.3 2 2.4 1.7l2.2-.6 2.2.6c1.1.3 2.4-.2 2.4-1.7 0-1.8-2-4.4-4.6-4.4Z',
+  'Eco-friendly products': 'M5 19c0-8 5-13 14-14-1 9-6 14-14 14Zm0 0c3-4 6-7 9-9',
+};
 ---
 
 <BaseLayout
@@ -36,50 +48,34 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
   businessSchema
 >
   <!-- Hero -->
-  <section class="hero" aria-labelledby="hero-heading">
+  <section class="hero" aria-labelledby="hero-heading" data-hib-zone>
+    <Petals count={9} />
     <div class="wrap hero__grid">
       <div class="hero__copy">
-        <p class="hero__eyebrow">{business.name}</p>
-        <h1 id="hero-heading">A beautifully clean home. More&nbsp;time for&nbsp;you.</h1>
-        <p class="lede hero__lede">
+        <p class="hero__eyebrow" data-anim="rise">{business.name}</p>
+        <h1 id="hero-heading" data-anim="lines">A beautifully clean home.<br /> More time for&nbsp;you.</h1>
+        <p class="lede hero__lede" data-anim="rise" style="--d:350ms">
           Thoughtful cleaning and housekeeping, from your weekly home reset to a detailed move‑out clean.
         </p>
-        <div class="btn-row hero__ctas">
+        <div class="btn-row hero__ctas" data-anim="rise" style="--d:480ms">
           <a class="btn btn--primary" href={business.phone.href} data-cta="hero">
             <PhoneIcon />
             {cta.call}
           </a>
           <a class="btn btn--secondary" href="#callback">{cta.callback}</a>
         </div>
-        <p class="hero__area">
+        <p class="hero__area" data-anim="rise" style="--d:600ms">
           Cleaning homes in Kallangur, North Lakes and nearby suburbs across Moreton Bay and North Brisbane.
         </p>
-        <div class="hero__trust">
+        <div class="hero__trust" data-anim="rise" style="--d:700ms">
           <TrustRow />
         </div>
       </div>
 
-      {
-        isPublished(shower) && (
-          <div class="hero__media">
-            <Reveal
-              before={beforeAligned}
-              after={afterAligned}
-              altBefore={shower.alt.before}
-              altAfter={shower.alt.after}
-              mode={shower.mode}
-              priority
-            >
-              <figcaption slot="caption" class="hero__caption">
-                {shower.caption}{' '}
-                <a href={shower.sourceUrl} rel="noopener" target="_blank">
-                  See the post<span class="visually-hidden"> on Instagram (opens in a new tab)</span>
-                </a>
-              </figcaption>
-            </Reveal>
-          </div>
-        )
-      }
+      <div class="hero__flower">
+        <div class="hero__glow" aria-hidden="true"></div>
+        <Hibiscus id="hero-hib" interactive />
+      </div>
     </div>
   </section>
 
@@ -87,47 +83,51 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
   <section class="services section" id="services" aria-labelledby="services-heading">
     <div class="wrap">
       <div class="services__head">
-        <h2 id="services-heading">Care for the everyday. Detail for the big&nbsp;days.</h2>
-        <p class="services__intro">
+        <h2 id="services-heading" data-anim="lines">Care for the everyday. Detail for the big days.</h2>
+        <p class="services__intro" data-anim="rise" style="--d:200ms">
           Regular housekeeping keeps the house feeling calm week to week. When you’re moving out, a bond clean takes
           care of the detail.
         </p>
       </div>
 
-      <div class="services__grid">
-        <article class="service service--general" aria-labelledby="svc-general">
-          <h3 id="svc-general">{services.general.name}</h3>
-          <p class="service__summary">{services.general.summary}</p>
-          <p class="service__meta">Available weekly, fortnightly or on a regular schedule, subject to availability.</p>
-          <ul class="service__list">
-            {
-              pick(services.general.inclusions, generalHighlights).map((i) => (
-                <li>
-                  {i.title}
-                  {i.onRequest && <span class="service__tag"> on request</span>}
-                </li>
-              ))
-            }
-          </ul>
-          <a class="text-link" href={services.general.href}>What’s included in general cleaning</a>
-        </article>
+      <div class="services__grid" data-stagger="140">
+        <div data-anim="pop" class="pop-shell">
+          <article class="service service--general" aria-labelledby="svc-general" data-tilt="5">
+            <h3 id="svc-general">{services.general.name}</h3>
+            <p class="service__summary">{services.general.summary}</p>
+            <p class="service__meta">Available weekly, fortnightly or on a regular schedule, subject to availability.</p>
+            <ul class="service__list">
+              {
+                pick(services.general.inclusions, generalHighlights).map((i) => (
+                  <li>
+                    {i.title}
+                    {i.onRequest && <span class="service__tag"> on request</span>}
+                  </li>
+                ))
+              }
+            </ul>
+            <a class="text-link" href={services.general.href}>What’s included in general cleaning</a>
+          </article>
+        </div>
 
-        <article class="service service--bond" aria-labelledby="svc-bond">
-          <h3 id="svc-bond">{services.bond.name}</h3>
-          <p class="service__summary">{services.bond.summary}</p>
-          <p class="service__meta">Preparing to hand back the keys? The team works through the property in detail.</p>
-          <ul class="service__list">
-            {pick(services.bond.inclusions, bondHighlights).map((i) => <li>{i.title}</li>)}
-          </ul>
-          <a class="text-link" href={services.bond.href}>What’s included in a bond clean</a>
-        </article>
+        <div data-anim="pop" class="pop-shell">
+          <article class="service service--bond" aria-labelledby="svc-bond" data-tilt="5">
+            <h3 id="svc-bond">{services.bond.name}</h3>
+            <p class="service__summary">{services.bond.summary}</p>
+            <p class="service__meta">Preparing to hand back the keys? The team works through the property in detail.</p>
+            <ul class="service__list">
+              {pick(services.bond.inclusions, bondHighlights).map((i) => <li>{i.title}</li>)}
+            </ul>
+            <a class="text-link" href={services.bond.href}>What’s included in a bond clean</a>
+          </article>
+        </div>
       </div>
 
       {
         moreServices.length > 0 && (
-          <ul class="services__more">
+          <ul class="services__more" data-stagger="120">
             {moreServices.map((m) => (
-              <li>
+              <li data-anim="rise">
                 <h3>{m.name}</h3>
                 <p>
                   {m.summary}{' '}
@@ -145,46 +145,19 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
 
   <!-- Our work -->
   {
-    isPublished(shower) && (
+    isPublished(work) && (
       <section class="work section" id="our-work" aria-labelledby="work-heading">
+        <Petals count={5} />
         <div class="wrap work__grid">
-          <div class="work__photos">
-            <figure>
-              <Picture
-                src={beforeFull}
-                alt={shower.alt.before}
-                widths={[252, 504]}
-                sizes="(min-width: 60em) 18rem, 45vw"
-                formats={['webp']}
-                fallbackFormat="jpg"
-                quality={72}
-                loading="lazy"
-              />
-              <figcaption>Before</figcaption>
-            </figure>
-            <figure>
-              <Picture
-                src={afterFull}
-                alt={shower.alt.after}
-                widths={[252, 504]}
-                sizes="(min-width: 60em) 18rem, 45vw"
-                formats={['webp']}
-                fallbackFormat="jpg"
-                quality={72}
-                loading="lazy"
-              />
-              <figcaption>After</figcaption>
-            </figure>
-          </div>
           <div class="work__copy">
-            <h2 id="work-heading">Shower glass, back to clear.</h2>
-            <p class="lede">{shower.detail}</p>
-            <p>
-              Soap scum and hard-water marks build up on shower screens over time. A detailed shower clean is part of
-              every bond and exit clean, and if your glass is looking tired at any other time, ask about it when you
-              call.
+            <h2 id="work-heading" data-anim="lines">From grimy to gleaming.</h2>
+            <p class="lede" data-anim="rise" style="--d:200ms">
+              Rust stains, soap residue and grime worked into the grout, taken back to bright white tile.
             </p>
-            <p class="work__more">
+            <p data-anim="rise" style="--d:300ms">
+              {work.caption} Hover or tap a photo pair to fan them out.
+            </p>
+            <p class="work__more" data-anim="rise" style="--d:400ms">
               More recent work is on{' '}
               <a href={business.social.instagram.url} rel="noopener" target="_blank">
                 Instagram<span class="visually-hidden"> (opens in a new tab)</span>
@@ -196,6 +169,40 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
               .
             </p>
           </div>
+
+          <div class="work__pairs" data-stagger="180">
+            {work.pairs.map((pair, i) => (
+              <figure class="pair" data-anim="pop" style={`--pop-z:${i ? 5 : -5}deg`}>
+                <div class="pair__card pair__card--before">
+                  <Picture
+                    src={photos[pair.key as keyof typeof photos].before}
+                    alt={pair.alt.before}
+                    widths={[360, 620]}
+                    sizes="(min-width: 60em) 22rem, 70vw"
+                    formats={['webp']}
+                    fallbackFormat="jpg"
+                    quality={74}
+                    loading="lazy"
+                  />
+                  <span class="pair__label">Before</span>
+                </div>
+                <div class="pair__card pair__card--after">
+                  <Picture
+                    src={photos[pair.key as keyof typeof photos].after}
+                    alt={pair.alt.after}
+                    widths={[360, 620]}
+                    sizes="(min-width: 60em) 22rem, 70vw"
+                    formats={['webp']}
+                    fallbackFormat="jpg"
+                    quality={74}
+                    loading="lazy"
+                  />
+                  <span class="pair__label pair__label--after">After</span>
+                </div>
+                <figcaption class="pair__caption">{pair.label}</figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
     )
@@ -204,32 +211,47 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
   <!-- Approach -->
   <section class="approach section" id="about" aria-labelledby="about-heading">
     <div class="wrap approach__grid">
-      <h2 id="about-heading">It’s the little things that make home feel looked&nbsp;after.</h2>
+      <div class="approach__lead">
+        <h2 id="about-heading" data-anim="lines">It’s the little things that make home feel looked after.</h2>
+        <div class="approach__flower">
+          <Hibiscus id="about-hib" />
+        </div>
+      </div>
       <div class="approach__body">
-        <p class="lede">
+        <p class="lede" data-anim="rise">
           Hibiscus Cleaning Services offers refined cleaning and housekeeping for homes around Kallangur and North Lakes,
           with the focus on detail.
         </p>
-        <p>
+        <p data-anim="rise" style="--d:120ms">
           That means kitchen surfaces wiped down properly, bathroom fixtures left shining, dust cleared from the
           windowsills and ceiling fans, and fresh linen on the bed when you ask for it. Tell the team what matters most
           in your home and you can talk through your priorities before the first clean.
         </p>
-        {
-          showClaims.length > 0 && (
-            <ul class="approach__claims">
-              {showClaims.map((c) => (
-                <li>{c.label}</li>
-              ))}
-            </ul>
-          )
-        }
-        <p class="approach__sign">
+        <p class="approach__sign" data-anim="rise" style="--d:200ms">
           <span class="rule" aria-hidden="true"></span>
           {business.tagline}
         </p>
       </div>
     </div>
+
+    {
+      showClaims.length > 0 && (
+        <div class="wrap">
+          <ul class="promises" data-stagger="130" aria-label="Our promises">
+            {showClaims.map((c) => (
+              <li data-anim="pop" class="pop-shell">
+                <div class="promise" data-tilt="9">
+                  <svg class="promise__icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d={claimIcons[c.label] ?? ''} />
+                  </svg>
+                  <p class="promise__label">{c.label}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
   </section>
 
   <Steps />
@@ -239,10 +261,14 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
   <!-- Area + FAQ -->
   <section class="info section" aria-label="Service area and questions">
     <div class="wrap info__grid">
-      <ServiceArea />
+      <div data-anim="rise">
+        <ServiceArea />
+      </div>
       <div class="info__faq">
-        <h2>Questions</h2>
-        <FaqList />
+        <h2 data-anim="lines">Questions</h2>
+        <div data-anim="rise" style="--d:150ms">
+          <FaqList />
+        </div>
       </div>
     </div>
   </section>
@@ -255,14 +281,18 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
   .hero {
     position: relative;
     isolation: isolate;
-    padding-block: clamp(2rem, 1rem + 3vw, 4rem) clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
     overflow: hidden;
+    display: grid;
+    align-items: center;
+    min-height: min(54rem, calc(100svh - var(--header-h)));
+    padding-block: clamp(2rem, 1rem + 3vw, 4rem);
   }
 
   .hero__grid {
     position: relative;
+    z-index: 1;
     display: grid;
-    grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: clamp(2rem, 1rem + 4vw, 5rem);
     align-items: center;
   }
@@ -310,56 +340,43 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
     max-width: 36rem;
   }
 
-  /* Blush field behind the photo, bleeding to the right edge. */
-  .hero__media {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    padding-block: clamp(1.5rem, 1rem + 2vw, 3rem);
+  /* Keep drifting petals away from the text column. */
+  .hero :global(.petals) {
+    left: 48%;
   }
 
-  .hero__media::before {
-    content: '';
+  .hero__flower {
+    position: relative;
+    justify-self: center;
+    width: min(100%, 36rem);
+  }
+
+  .hero__glow {
     position: absolute;
-    inset: 0 calc(-50vw) 0 18%;
-    background: var(--blush);
-    border-radius: var(--radius-img) 0 0 var(--radius-img);
+    inset: 4%;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--blush) 0%, rgb(244 229 233 / 0.6) 45%, transparent 70%);
     z-index: -1;
   }
 
-  .hero__media :global(.reveal) {
-    max-width: 30rem;
-  }
-
-  .hero__caption {
-    margin-top: var(--space-s);
-    font-size: var(--step--1);
-    color: var(--muted);
-  }
-
-  .hero__caption a {
-    color: var(--burgundy);
-    white-space: nowrap;
-  }
-
   @media (max-width: 47.99em) {
+    .hero {
+      min-height: 0;
+      padding-top: var(--space-l);
+    }
     .hero__grid {
       grid-template-columns: 1fr;
+      gap: var(--space-l);
     }
-
-    .hero__media {
-      padding-block: 0;
+    .hero :global(.petals) {
+      left: 0;
+      bottom: auto;
+      height: 22rem;
     }
-
-    .hero__media::before {
-      inset: 12% calc(-1 * var(--gutter)) -1.5rem 22%;
-      border-radius: var(--radius-img) 0 0 var(--radius-img);
-    }
-  }
-
-  @media (min-width: 48em) and (max-width: 63.99em) {
-    .hero__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    .hero__flower {
+      order: -1;
+      width: min(68vw, 18rem);
+      margin-bottom: calc(var(--space-l) * -1);
     }
   }
 
@@ -387,11 +404,17 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
     margin-top: clamp(2.5rem, 2rem + 2vw, 4rem);
   }
 
+  .pop-shell {
+    display: flex;
+  }
+
   .service {
     display: flex;
     flex-direction: column;
+    width: 100%;
     padding: clamp(1.75rem, 1rem + 3vw, 3.5rem);
     border-radius: var(--radius-img);
+    overflow: hidden;
   }
 
   .service--general {
@@ -489,40 +512,25 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
     }
   }
 
-  /* ---------- Our work ---------- */
+  /* ---------- Our work: fanned before/after photo pairs ---------- */
   .work {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     background: var(--blush);
   }
 
+  .work :global(.petals) {
+    left: 40%;
+  }
+
   .work__grid {
+    position: relative;
+    z-index: 1;
     display: grid;
-    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
     gap: clamp(2rem, 1rem + 4vw, 5rem);
     align-items: center;
-  }
-
-  .work__photos {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-m);
-    max-width: 38rem;
-  }
-
-  .work__photos figure {
-    margin: 0;
-  }
-
-  .work__photos img {
-    width: 100%;
-    aspect-ratio: 504 / 1041;
-    object-fit: cover;
-    border-radius: var(--radius-img);
-  }
-
-  .work__photos figcaption {
-    margin-top: var(--space-xs);
-    font-weight: 600;
-    color: var(--burgundy);
   }
 
   .work__copy > * + * {
@@ -530,7 +538,7 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
   }
 
   .work__copy h2 {
-    max-width: 10em;
+    max-width: 9em;
   }
 
   .work__copy p {
@@ -541,12 +549,90 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
     color: var(--muted);
   }
 
-  @media (max-width: 47.99em) {
+  .work__pairs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  }
+
+  .pair {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 1 / 1.08;
+    cursor: pointer;
+  }
+
+  .pair__card {
+    position: absolute;
+    width: 74%;
+    padding: 8px 8px 2.25rem;
+    background: var(--white);
+    border-radius: 6px;
+    box-shadow: 0 18px 40px -22px rgb(48 40 43 / 0.55), 0 2px 6px rgb(48 40 43 / 0.08);
+    transition: transform 800ms var(--spring);
+  }
+
+  .pair__card :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 3px;
+  }
+
+  .pair__card--before {
+    top: 0;
+    left: 0;
+    transform: rotate(-6deg);
+  }
+
+  .pair__card--after {
+    right: 0;
+    bottom: 2rem;
+    transform: rotate(4deg);
+    z-index: 1;
+  }
+
+  .pair:hover .pair__card--before,
+  .pair.is-open .pair__card--before {
+    transform: rotate(-10deg) translate(-8%, -4%);
+  }
+
+  .pair:hover .pair__card--after,
+  .pair.is-open .pair__card--after {
+    transform: rotate(7deg) translate(8%, 5%) scale(1.03);
+  }
+
+  .pair__label {
+    position: absolute;
+    left: 12px;
+    bottom: 0.55rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+
+  .pair__label--after {
+    color: var(--burgundy);
+  }
+
+  .pair__caption {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    font-family: var(--font-serif);
+    color: var(--burgundy);
+  }
+
+  @media (max-width: 59.99em) {
     .work__grid {
       grid-template-columns: 1fr;
     }
-    .work__copy {
-      order: -1;
+  }
+
+  @media (max-width: 34em) {
+    .work__pairs {
+      grid-template-columns: 1fr;
+      max-width: 24rem;
     }
   }
 
@@ -562,37 +648,17 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
     max-width: 11em;
   }
 
+  .approach__flower {
+    width: min(14rem, 50%);
+    margin-top: var(--space-xl);
+  }
+
   .approach__body > * + * {
     margin-top: var(--space-l);
   }
 
   .approach__body p {
     max-width: 34em;
-  }
-
-  .approach__claims {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs) var(--space-l);
-    padding-block: var(--space-m);
-    border-block: 1px solid var(--line);
-    font-weight: 600;
-    color: var(--burgundy);
-  }
-
-  .approach__claims li {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .approach__claims li::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--gold);
   }
 
   .approach__sign {
@@ -604,8 +670,58 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
     color: var(--burgundy);
   }
 
+  .promises {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    margin-top: clamp(2.5rem, 2rem + 3vw, 5rem);
+  }
+
+  .promise {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-l);
+    width: 100%;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    border-radius: var(--radius-img);
+    background: linear-gradient(160deg, var(--white), var(--blush));
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .promise__icon {
+    width: 3rem;
+    height: 3rem;
+    padding: 0.7rem;
+    border-radius: 50%;
+    background: var(--burgundy);
+    fill: none;
+    stroke: var(--ivory);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .promise__label {
+    font-family: var(--font-serif);
+    font-size: var(--step-2);
+    color: var(--burgundy);
+    line-height: 1.2;
+  }
+
   @media (max-width: 59.99em) {
     .approach__grid {
+      grid-template-columns: 1fr;
+    }
+    .approach__flower {
+      display: none;
+    }
+  }
+
+  @media (max-width: 40em) {
+    .promises {
       grid-template-columns: 1fr;
     }
   }
@@ -632,3 +748,10 @@ const pick = (list: readonly { title: string; onRequest?: boolean }[], titles: s
     }
   }
 </style>
+
+<script>
+  // Tap to fan a photo pair on touch screens (hover covers mouse users).
+  document.querySelectorAll<HTMLElement>('.pair').forEach((pair) => {
+    pair.addEventListener('click', () => pair.classList.toggle('is-open'));
+  });
+</script>

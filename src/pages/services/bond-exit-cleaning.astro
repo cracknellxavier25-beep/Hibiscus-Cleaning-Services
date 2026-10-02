@@ -1,13 +1,15 @@
 ---
-import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import InclusionList from '../../components/InclusionList.astro';
 import Steps from '../../components/Steps.astro';
 import FaqList from '../../components/FaqList.astro';
 import ContactSection from '../../components/ContactSection.astro';
 import PhoneIcon from '../../components/PhoneIcon.astro';
-import beforeFull from '../../assets/work/shower-glass-before-full.png';
-import afterFull from '../../assets/work/shower-glass-after-full.png';
+import Hibiscus from '../../components/Hibiscus.astro';
+import Petals from '../../components/Petals.astro';
+import Reveal from '../../components/Reveal.astro';
+import beforeAligned from '../../assets/work/shower-glass-before-aligned.png';
+import afterAligned from '../../assets/work/shower-glass-after-aligned.png';
 import { business, services, media, cta, isPublished } from '../../content/site';
 
 const svc = services.bond;
@@ -20,7 +22,11 @@ const shower = media.showerGlass;
   title="Bond and exit cleaning | Hibiscus Cleaning Services"
   description="Detailed bond and exit cleaning around Kallangur, North Lakes, Moreton Bay and North Brisbane: kitchen, deep bathroom and shower, cupboards, skirting boards and window tracks. Call 0435 895 629."
 >
-  <section class="page-intro">
+  <section class="page-intro page-intro--flower" data-hib-zone>
+    <Petals count={5} />
+    <div class="page-intro__flower">
+      <Hibiscus id="bond-hib" interactive />
+    </div>
     <div class="wrap">
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <ol>
@@ -29,12 +35,12 @@ const shower = media.showerGlass;
           <li aria-current="page">Bond and exit cleaning</li>
         </ol>
       </nav>
-      <h1>Bond and exit cleaning</h1>
-      <p class="lede">
+      <h1 data-anim="lines">Bond and exit cleaning</h1>
+      <p class="lede" data-anim="rise" style="--d:250ms">
         {svc.summary} Hibiscus works through the property in detail so you can hand it back beautifully presented and
         get on with the move.
       </p>
-      <div class="btn-row">
+      <div class="btn-row" data-anim="rise" style="--d:380ms">
         <a class="btn btn--primary" href={business.phone.href} data-cta="bond-intro">
           <PhoneIcon />
           {cta.call}
@@ -47,7 +53,7 @@ const shower = media.showerGlass;
   <section class="section" aria-labelledby="included-heading">
     <div class="wrap">
       <div class="split split--head">
-        <h2 id="included-heading">What a bond clean covers</h2>
+        <h2 id="included-heading" data-anim="lines">What a bond clean covers</h2>
         <p class="muted">
           The advertised scope for a bond or exit clean. Every property is different, so confirm the details for yours
           when you discuss your quote.
@@ -56,7 +62,7 @@ const shower = media.showerGlass;
       <InclusionList items={standard} />
 
       <div class="split split--head arrange">
-        <h2 class="arrange__heading">By arrangement</h2>
+        <h2 class="arrange__heading" data-anim="lines">By arrangement</h2>
         <p class="muted">Mention it when you enquire so it can be discussed with your clean.</p>
       </div>
       <InclusionList items={byArrangement} />
@@ -68,22 +74,22 @@ const shower = media.showerGlass;
       <section class="section section--tint" aria-labelledby="shower-heading">
         <div class="wrap shower">
           <div class="shower__copy">
-            <h2 id="shower-heading">Detail where it shows</h2>
+            <h2 id="shower-heading" data-anim="lines">Detail where it shows</h2>
             <p class="lede">
               Shower screens are one of the first things people notice. A bond clean includes removing limescale, soap
               scum and built-up grime from the glass, tiles and fixtures.
             </p>
             <p class="muted">{shower.caption}</p>
           </div>
-          <div class="shower__photos">
-            <figure>
-              <Picture src={beforeFull} alt={shower.alt.before} widths={[252, 504]} sizes="(min-width: 60em) 16rem, 45vw" formats={['webp']} fallbackFormat="jpg" quality={72} loading="lazy" />
-              <figcaption>Before</figcaption>
-            </figure>
-            <figure>
-              <Picture src={afterFull} alt={shower.alt.after} widths={[252, 504]} sizes="(min-width: 60em) 16rem, 45vw" formats={['webp']} fallbackFormat="jpg" quality={72} loading="lazy" />
-              <figcaption>After</figcaption>
-            </figure>
+          <div class="shower__photos" data-anim="pop" style="--pop-z:3deg">
+            <Reveal
+              before={beforeAligned}
+              after={afterAligned}
+              altBefore={shower.alt.before}
+              altAfter={shower.alt.after}
+              mode={shower.mode}
+              sizes="(min-width: 60em) 28rem, calc(100vw - 2rem)"
+            />
           </div>
         </div>
       </section>
@@ -92,7 +98,7 @@ const shower = media.showerGlass;
 
   <section class="section section--ruled" aria-labelledby="quote-heading">
     <div class="wrap split">
-      <h2 id="quote-heading">Discuss your quote</h2>
+      <h2 id="quote-heading" data-anim="lines">Discuss your quote</h2>
       <div class="prose">
         <p class="lede">
           Pricing depends on the property, so it’s worked out with you rather than listed here.
@@ -113,7 +119,7 @@ const shower = media.showerGlass;
 
   <section class="section section--ruled" aria-labelledby="faq-heading">
     <div class="wrap split">
-      <h2 id="faq-heading">Questions</h2>
+      <h2 id="faq-heading" data-anim="lines">Questions</h2>
       <div>
         <FaqList only={[3, 1, 4, 5]} />
       </div>
@@ -148,27 +154,9 @@ const shower = media.showerGlass;
   }
 
   .shower__photos {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-m);
-    max-width: 34rem;
-  }
-
-  .shower__photos figure {
-    margin: 0;
-  }
-
-  .shower__photos img {
     width: 100%;
-    aspect-ratio: 504 / 1041;
-    object-fit: cover;
-    border-radius: var(--radius-img);
-  }
-
-  .shower__photos figcaption {
-    margin-top: var(--space-xs);
-    font-weight: 600;
-    color: var(--burgundy);
+    max-width: 28rem;
+    justify-self: center;
   }
 
   @media (max-width: 47.99em) {

@@ -6,9 +6,9 @@
  * handle to the right wipes the glass clean behind it, like a squeegee.
  *
  * - Server-rendered complete state; no JS required to see both photos.
- * - One optional 750ms intro sweep (25% → 70%) per tab session, only when the
- *   images are ready and the component is on screen. Skipped for reduced
- *   motion, data saver, prior interaction, or if it would arrive late.
+ * - One 750ms intro sweep (25% → 70%) per tab session, when the images are
+ *   ready and the component first scrolls into view. Skipped for reduced
+ *   motion, data saver or prior interaction.
  * - Pointer drag (touch keeps vertical scrolling), native range input for
  *   keyboard and assistive tech, plus Show before / Show after buttons.
  */
@@ -128,7 +128,6 @@ const imgProps = {
   const INTRO_FROM = 25;
   const REST = 70;
   const INTRO_MS = 750;
-  const LATE_MS = 4000; // don't start an intro more than this long after navigation
   const SESSION_KEY = 'hib-reveal-seen';
 
   const root = document.documentElement;
@@ -214,12 +213,12 @@ const imgProps = {
       ready
         .then(() => {
           if (interacted) return;
-          if (performance.now() > LATE_MS || !('IntersectionObserver' in window)) return settle();
+          if (!('IntersectionObserver' in window)) return settle();
           const io = new IntersectionObserver(
             ([entry]) => {
+              if (!entry.isIntersecting) return;
               io.disconnect();
               if (interacted) return;
-              if (!entry.isIntersecting || performance.now() > LATE_MS) return settle();
               try {
                 sessionStorage.setItem(SESSION_KEY, '1');
               } catch {

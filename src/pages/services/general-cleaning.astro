@@ -5,6 +5,8 @@ import Steps from '../../components/Steps.astro';
 import FaqList from '../../components/FaqList.astro';
 import ContactSection from '../../components/ContactSection.astro';
 import PhoneIcon from '../../components/PhoneIcon.astro';
+import Hibiscus from '../../components/Hibiscus.astro';
+import Petals from '../../components/Petals.astro';
 import { business, services, cta } from '../../content/site';
 
 const svc = services.general;
@@ -16,7 +18,11 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
   title="General cleaning and housekeeping | Hibiscus Cleaning Services"
   description="Weekly, fortnightly or regular home cleaning and housekeeping around Kallangur, North Lakes and Moreton Bay: bathrooms, kitchen, dusting, floors, linen and laundry on request."
 >
-  <section class="page-intro">
+  <section class="page-intro page-intro--flower" data-hib-zone>
+    <Petals count={5} />
+    <div class="page-intro__flower">
+      <Hibiscus id="general-hib" interactive />
+    </div>
     <div class="wrap">
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <ol>
@@ -25,9 +31,9 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
           <li aria-current="page">General cleaning</li>
         </ol>
       </nav>
-      <h1>General cleaning and housekeeping</h1>
-      <p class="lede">{svc.description}</p>
-      <div class="btn-row">
+      <h1 data-anim="lines">General cleaning and housekeeping</h1>
+      <p class="lede" data-anim="rise" style="--d:250ms">{svc.description}</p>
+      <div class="btn-row" data-anim="rise" style="--d:380ms">
         <a class="btn btn--primary" href={business.phone.href} data-cta="general-intro">
           <PhoneIcon />
           {cta.call}
@@ -40,7 +46,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
   <section class="section" aria-labelledby="frequency-heading">
     <div class="wrap split">
       <div class="split__aside">
-        <h2 id="frequency-heading">A clean that fits your week</h2>
+        <h2 id="frequency-heading" data-anim="lines">A clean that fits your week</h2>
       </div>
       <div class="split__main prose">
         <p class="lede">
@@ -59,7 +65,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
   <section class="section section--tint" aria-labelledby="included-heading">
     <div class="wrap">
       <div class="split split--head">
-        <h2 id="included-heading">What’s included</h2>
+        <h2 id="included-heading" data-anim="lines">What’s included</h2>
         <p class="muted">
           These are the advertised inclusions for a general clean. Not every item is needed at every visit; you’ll
           agree the scope when you discuss your clean.
@@ -68,7 +74,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
       <InclusionList items={standard} />
 
       <div class="split split--head request">
-        <h2 class="request__heading">Available on request</h2>
+        <h2 class="request__heading" data-anim="lines">Available on request</h2>
         <p class="muted">Mention these when you enquire so they can be included in your quote.</p>
       </div>
       <InclusionList items={onRequest} />
@@ -84,7 +90,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
 
   <section class="section section--ruled" aria-labelledby="faq-heading">
     <div class="wrap split">
-      <h2 id="faq-heading" class="split__aside">Questions</h2>
+      <h2 id="faq-heading" data-anim="lines" class="split__aside">Questions</h2>
       <div class="split__main">
         <FaqList only={[0, 2, 1, 4, 5]} />
       </div>

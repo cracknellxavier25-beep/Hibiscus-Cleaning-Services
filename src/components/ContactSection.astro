@@ -1,6 +1,7 @@
 ---
 import CallbackForm from './CallbackForm.astro';
 import PhoneIcon from './PhoneIcon.astro';
+import Petals from './Petals.astro';
 import { business, serviceArea, cta, isPublished } from '../content/site';
 
 interface Props {
@@ -13,9 +14,10 @@ const Heading = headingLevel;
 ---
 
 <section class="contact" id="contact" aria-labelledby="contact-heading">
+  <Petals count={7} tone="light" />
   <div class="wrap contact__grid">
     <div class="contact__copy">
-      <Heading id="contact-heading" class="contact__heading">{heading}</Heading>
+      <Heading id="contact-heading" class="contact__heading" data-anim="lines">{heading}</Heading>
       <p class="contact__lede">
         Call to talk through your clean, your suburb and a time that suits. If now isn’t a good moment, request a
         callback instead.
@@ -61,12 +63,17 @@ const Heading = headingLevel;
 
 <style>
   .contact {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     background: var(--burgundy);
     color: var(--on-burgundy);
     padding-block: var(--section);
   }
 
   .contact__grid {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     gap: clamp(2.5rem, 2rem + 4vw, 6rem);

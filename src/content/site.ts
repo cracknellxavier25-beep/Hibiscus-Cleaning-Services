@@ -281,6 +281,32 @@ export const serviceOptions = [
 /* ------------------------------------------------------------------ */
 
 export const media = {
+  /** Two before/after pairs of the same tiled shower. Shown on the homepage. */
+  showerFloor: {
+    caption: 'A tiled shower, before and after a deep clean by the Hibiscus team.',
+    pairs: [
+      {
+        key: 'floor',
+        label: 'Shower floor',
+        alt: {
+          before: 'Before: white shower floor tiles covered in rust-brown stains, blue spots and dark grime along the grout and the base of the wall.',
+          after: 'After: the same shower floor with clean white tiles and grout, the drain and aluminium rail shining.',
+        },
+      },
+      {
+        key: 'corner',
+        label: 'Shower corner',
+        alt: {
+          before: 'Before: the shower corner, its floor tiles heavily stained brown with soap residue and built-up grime.',
+          after: 'After: the same shower corner with bright, clean white wall and floor tiles.',
+        },
+      },
+    ],
+    source: 'Photos of a Hibiscus job supplied by owner, 2 Oct 2026 (two before, two after; not aligned pairs)',
+    status: 'confirmed',
+    publish: true,
+  },
+  /** Shower glass pair. Used once only, on the bond & exit page. */
   showerGlass: {
     caption: 'Shower glass restored by the Hibiscus team in North Brisbane.',
     alt: {

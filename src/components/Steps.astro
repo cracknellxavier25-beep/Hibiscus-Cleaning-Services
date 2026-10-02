@@ -13,14 +13,16 @@ const steps = [
 
 <section class="steps section" aria-labelledby="steps-heading">
   <div class="wrap">
-    <h2 id="steps-heading" class="steps__heading">{heading}</h2>
-    <ol class="steps__list">
+    <h2 id="steps-heading" class="steps__heading" data-anim="lines">{heading}</h2>
+    <ol class="steps__list" data-stagger="150">
       {
         steps.map((s, i) => (
-          <li class="steps__item">
-            <span class="steps__num" aria-hidden="true">{i + 1}</span>
-            <h3 class="steps__title">{s.title}</h3>
-            <p>{s.text}</p>
+          <li class="steps__shell" data-anim="pop">
+            <div class="steps__item" data-tilt="8">
+              <span class="steps__num" aria-hidden="true">{i + 1}</span>
+              <h3 class="steps__title">{s.title}</h3>
+              <p>{s.text}</p>
+            </div>
           </li>
         ))
       }
@@ -41,20 +43,27 @@ const steps = [
     list-style: none;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-2xl) clamp(1.5rem, 1rem + 3vw, 4rem);
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
     margin-top: var(--space-2xl);
   }
 
+  .steps__shell {
+    display: flex;
+  }
+
   .steps__item {
-    position: relative;
-    padding-top: var(--space-l);
-    border-top: 1px solid var(--gold);
+    width: 100%;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    border-radius: var(--radius-img);
+    background: var(--white);
+    border: 1px solid var(--line);
+    overflow: hidden;
   }
 
   .steps__num {
     display: block;
     font-family: var(--font-serif);
-    font-size: 2.75rem;
+    font-size: 3.5rem;
     line-height: 1;
     color: var(--burgundy);
     margin-bottom: var(--space-m);
@@ -72,7 +81,6 @@ const steps = [
   @media (max-width: 47.99em) {
     .steps__list {
       grid-template-columns: 1fr;
-      gap: var(--space-xl);
     }
   }
 </style>

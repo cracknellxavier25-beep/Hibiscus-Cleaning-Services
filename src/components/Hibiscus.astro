@@ -1,0 +1,220 @@
+---
+/**
+ * Layered hibiscus with depth.
+ *
+ * Three stacked SVG layers (leaves/ring, petals, stamen) sit at different
+ * translateZ depths inside a preserve-3d stage, so tilting the stage gives
+ * real parallax. The flower blooms petal by petal when `.is-bloom` is added
+ * (by the motion script, or immediately with bloom="auto"), then turns slowly.
+ *
+ * Without motion (reduced motion / no JS) it renders fully open and still.
+ */
+import { back, mid, front } from './hibiscus-art';
+
+interface Props {
+  id: string;
+  class?: string;
+  /** 'auto' blooms on load; 'scroll' waits for the motion script. */
+  bloom?: 'auto' | 'scroll';
+  /** Follow the pointer with a 3D tilt (fine pointers only). */
+  interactive?: boolean;
+}
+
+const { id, class: className, bloom = 'scroll', interactive = false } = Astro.props;
+const fill = (svg: string) => svg.replaceAll('__PID__', id);
+---
+
+<div
+  class:list={['hib', className, { 'is-bloom': bloom === 'auto' }]}
+  data-hib={bloom}
+  data-hib-interactive={interactive ? '' : undefined}
+  aria-hidden="true"
+>
+  <div class="hib__tilt">
+    <div class="hib__sway">
+      <div class="hib__spin">
+        <Fragment set:html={fill(back)} />
+        <Fragment set:html={fill(mid)} />
+        <Fragment set:html={fill(front)} />
+      </div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .hib {
+    --rx: 0deg;
+    --ry: 0deg;
+    position: relative;
+    aspect-ratio: 1;
+    width: 100%;
+    perspective: 1100px;
+    pointer-events: none;
+  }
+
+  .hib__tilt,
+  .hib__sway,
+  .hib__spin {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+  }
+
+  .hib__tilt {
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform 900ms var(--spring-soft);
+  }
+
+  .hib-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .hib-back {
+    transform: translateZ(-50px) scale(1.05);
+  }
+  .hib-front {
+    transform: translateZ(70px) scale(0.94);
+  }
+
+  /* Parts animate around their own base point. */
+  .hib-petal,
+  .hib-leaf,
+  .hib-sprig,
+  .hib-pollen,
+  .hib-stigma {
+    transform-box: fill-box;
+  }
+  .hib-petal {
+    transform-origin: 50% 100%;
+  }
+  .hib-leaf {
+    transform-origin: 0% 50%;
+  }
+  .hib-sprig {
+    transform-origin: 0% 100%;
+  }
+  .hib-pollen,
+  .hib-stigma {
+    transform-origin: 50% 50%;
+  }
+
+  /* ---------- Motion ---------- */
+  .motion .hib:not(.is-bloom) :is(.hib-petal, .hib-leaf, .hib-sprig, .hib-pollen, .hib-stigma, .hib-eye) {
+    opacity: 0;
+  }
+  .motion .hib:not(.is-bloom) :is(.hib-ring, .hib-column) {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+  }
+
+  .motion .hib.is-bloom .hib-ring {
+    stroke-dasharray: 100;
+    animation: hib-draw calc(var(--t, 1) * 1600ms) var(--ease) both;
+  }
+  .motion .hib.is-bloom .hib-leaf {
+    animation: hib-unfurl calc(var(--t, 1) * 900ms) var(--spring-soft) both;
+    animation-delay: calc(var(--t, 1) * (150ms + var(--i) * 60ms));
+  }
+  .motion .hib.is-bloom .hib-sprig {
+    animation: hib-pop calc(var(--t, 1) * 700ms) var(--spring) both;
+    animation-delay: calc(var(--t, 1) * (700ms + var(--i) * 90ms));
+  }
+  .motion .hib.is-bloom .hib-petal {
+    animation: hib-petal calc(var(--t, 1) * 1100ms) var(--spring-soft) both;
+    animation-delay: calc(var(--t, 1) * (280ms + var(--i) * 110ms));
+  }
+  .motion .hib.is-bloom .hib-eye {
+    animation: hib-fade calc(var(--t, 1) * 800ms) var(--ease) calc(var(--t, 1) * 700ms) both;
+  }
+  .motion .hib.is-bloom .hib-column {
+    stroke-dasharray: 100;
+    animation: hib-draw calc(var(--t, 1) * 700ms) var(--ease) calc(var(--t, 1) * 900ms) both;
+  }
+  .motion .hib.is-bloom .hib-pollen {
+    animation: hib-pop calc(var(--t, 1) * 600ms) var(--spring) both;
+    animation-delay: calc(var(--t, 1) * (1250ms + var(--j) * 45ms));
+  }
+  .motion .hib.is-bloom .hib-stigma {
+    animation: hib-pop calc(var(--t, 1) * 700ms) var(--spring) calc(var(--t, 1) * 1500ms) both;
+  }
+
+  /* Gentle life once open: a slow turn and a soft sway. */
+  .motion .hib.is-bloom .hib__spin {
+    animation: hib-spin 90s linear 1.8s infinite;
+  }
+  .motion .hib.is-bloom .hib__sway {
+    animation: hib-sway 9s ease-in-out 1.8s infinite;
+  }
+  .motion .hib.is-paused .hib__spin,
+  .motion .hib.is-paused .hib__sway {
+    animation-play-state: paused;
+  }
+
+  @keyframes hib-draw {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes hib-petal {
+    from {
+      opacity: 0;
+      transform: scale(0.12) rotate(-38deg);
+    }
+    25% {
+      opacity: 1;
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes hib-unfurl {
+    from {
+      opacity: 0;
+      transform: scale(0.2) rotate(-25deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes hib-pop {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes hib-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes hib-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes hib-sway {
+    0%,
+    100% {
+      transform: rotateX(0deg) rotateY(0deg);
+    }
+    25% {
+      transform: rotateX(6deg) rotateY(-9deg);
+    }
+    75% {
+      transform: rotateX(-5deg) rotateY(8deg);
+    }
+  }
+</style>

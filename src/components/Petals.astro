@@ -1,0 +1,43 @@
+---
+/**
+ * A handful of hibiscus petals drifting down behind a section.
+ * Pure CSS animation (motion.css), paused off screen by the motion script,
+ * hidden entirely for reduced motion.
+ */
+interface Props {
+  count?: number;
+  tone?: 'pink' | 'light';
+}
+const { count = 8, tone = 'pink' } = Astro.props;
+
+// Deterministic spread so builds are stable.
+const petals = Array.from({ length: count }, (_, i) => {
+  const r = (n: number) => ((Math.sin((i + 1) * n) + 1) / 2);
+  return {
+    x: `${Math.round(4 + r(12.9) * 90)}%`,
+    s: `${Math.round(14 + r(7.3) * 20)}px`,
+    dur: `${(15 + r(3.1) * 12).toFixed(1)}s`,
+    delay: `${(-r(5.7) * 20).toFixed(1)}s`,
+    sway: `${Math.round(-80 + r(9.1) * 160)}px`,
+    o: (0.35 + r(2.3) * 0.4).toFixed(2),
+  };
+});
+const fill = tone === 'pink' ? ['#f6a9bf', '#e8708f'] : ['#fbe3ea', '#f3c6d3'];
+---
+
+<div class="petals" aria-hidden="true">
+  {
+    petals.map((p, i) => (
+      <svg
+        viewBox="0 0 40 52"
+        style={`--x:${p.x};--s:${p.s};--dur:${p.dur};--delay:${p.delay};--sway:${p.sway};--o:${p.o}`}
+      >
+        <path
+          d="M20 52C8 42 0 30 2 17 4 6 12 0 20 3c8-3 16 3 18 14 2 13-6 25-18 35Z"
+          fill={fill[i % 2]}
+        />
+        <path d="M20 50C19 36 19 20 20 6" stroke="#fff" stroke-opacity=".45" stroke-width="1" fill="none" />
+      </svg>
+    ))
+  }
+</div>
