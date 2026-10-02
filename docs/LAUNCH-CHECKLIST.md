@@ -31,6 +31,7 @@ Confirmed by the owner on 2 Oct 2026 and published as written on the flyer:
 - [x] **Commercial cleaning.** Shown as a short "call to discuss" line, using the flyer's wording (owner confirmed). Supply the scope (offices, strata, etc.) for a fuller description or its own page.
 - [x] **DVA, My Aged Care and insurance work.** Published as a short "call to discuss" line, following the flyer (owner confirmed). The site deliberately doesn't claim registered or approved provider status, or mention funding or billing. Add those details only with evidence.
 - [ ] **Carpet cleaning.** Shown as "by arrangement". Confirm how it's provided and charged if you want more detail.
+- [x] **Location wording.** The site refers to the Moreton Bay region generally (owner request, 2 Oct 2026). Kallangur isn't shown as a base; the suburb list in "Where we clean" is unchanged.
 - [ ] **Hours.** Taken from the Google profile (Mon–Fri 6am–6pm, Sat 7am–4pm, Sun closed).
 
 ## Photos

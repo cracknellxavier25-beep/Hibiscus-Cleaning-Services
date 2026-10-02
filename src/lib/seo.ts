@@ -7,15 +7,13 @@ export function localBusinessSchema(site: URL | undefined, logoUrl: string) {
     '@type': 'LocalBusiness',
     name: business.name,
     description:
-      'Home cleaning and housekeeping, plus bond and exit cleaning, based in Kallangur, Queensland.',
+      'Home cleaning and housekeeping, plus bond and exit cleaning, across the Moreton Bay region, Queensland.',
     telephone: business.phone.tel,
     slogan: business.tagline,
     address: {
       '@type': 'PostalAddress',
-      addressLocality: business.base.locality,
-      addressRegion: business.base.region,
-      postalCode: business.base.postcode,
-      addressCountry: business.base.country,
+      addressRegion: 'QLD',
+      addressCountry: 'AU',
     },
     sameAs: Object.values(business.social)
       .filter((s) => s.publish)
@@ -39,10 +37,7 @@ export function localBusinessSchema(site: URL | undefined, logoUrl: string) {
   }
 
   if (isPublished(serviceArea)) {
-    data.areaServed = serviceArea.suburbs.map((name) => ({
-      '@type': 'Place',
-      name: `${name}, QLD`,
-    }));
+    data.areaServed = { '@type': 'AdministrativeArea', name: 'Moreton Bay Region, QLD' };
   }
 
   return data;

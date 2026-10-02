@@ -40,7 +40,7 @@ export const business = {
     status: 'confirmed',
     publish: true,
   },
-  /** Locality only. The street is deliberately not published (service-area business). */
+  /** Base locality. Not shown: the site refers to the Moreton Bay region generally. */
   base: {
     locality: 'Kallangur',
     region: 'QLD',
@@ -48,7 +48,7 @@ export const business = {
     country: 'AU',
     source: 'Google Business Profile (supplied by owner, 2 Oct 2026)',
     status: 'confirmed',
-    publish: true,
+    publish: false, // owner prefers the general Moreton Bay region (2 Oct 2026)
   },
   hours: {
     note: 'Hours might differ on public holidays.',
@@ -91,7 +91,7 @@ export const business = {
 
 export const serviceArea = {
   summary:
-    'Based in Kallangur, cleaning homes across Moreton Bay and North Brisbane.',
+    'Cleaning homes across the Moreton Bay region.',
   /** Ordered roughly north to south for scanning. */
   suburbs: [
     'Dayboro',
@@ -351,7 +351,7 @@ export const faqs = [
   },
   {
     q: 'Do you clean in my suburb?',
-    a: 'Hibiscus is based in Kallangur and cleans across Moreton Bay and North Brisbane, including North Lakes, Griffin, Burpengary, Deception Bay, Redcliffe, Dayboro, Banyo and Nudgee. Not sure whether you’re covered? Call and ask.',
+    a: 'Hibiscus cleans homes across the Moreton Bay region. Not sure whether you’re covered? Call and ask.',
   },
 ];
 
