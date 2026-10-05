@@ -69,7 +69,7 @@ The owner asked for a site that catches the eye, with plenty of animation, while
 
 **Photo pairs.** The before/after cards sit fanned like prints, and spread on hover or tap.
 
-**Hearts (from the logo).** The logo's small outline heart between gold lines is reused as a quiet motif: beside the hero label, as a small ornament above the main section headings, before the tagline, under the footer logo and on the intro glass. With motion, the lines draw out, the heart draws itself and gives one gentle beat. Service lists use tiny heart bullets, and a few hearts drift among the petals.
+**Hearts (from the logo).** The logo's small outline heart between gold lines is reused as a quiet motif: beside the hero label, as a small ornament above the main section headings, before the tagline, under the footer logo and on the intro glass. With motion, the lines draw out, the heart draws itself and gives one gentle beat. Service lists and the inner pages' inclusion lists use tiny heart bullets, inner-page titles and main headings carry the same ornament, and a few hearts drift among the petals.
 
 **Petals.** A few petals drift in the hero, the work section and the contact band.
 - They're kept clear of the text.
