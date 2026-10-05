@@ -3,6 +3,7 @@ import { Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hibiscus from '../components/Hibiscus.astro';
 import Petals from '../components/Petals.astro';
+import HeartRule from '../components/HeartRule.astro';
 import TrustRow from '../components/TrustRow.astro';
 import Steps from '../components/Steps.astro';
 import Reviews from '../components/Reviews.astro';
@@ -49,10 +50,10 @@ const claimIcons: Record<string, string> = {
 >
   <!-- Hero -->
   <section class="hero" aria-labelledby="hero-heading" data-hib-zone>
-    <Petals count={9} />
+    <Petals count={9} hearts />
     <div class="wrap hero__grid">
       <div class="hero__copy">
-        <p class="hero__eyebrow" data-anim="rise">{business.name}</p>
+        <p class="hero__eyebrow" data-anim="rise">{business.name} <HeartRule variant="trail" /></p>
         <h1 id="hero-heading" data-anim="lines">A beautifully clean home.<br /> More time for&nbsp;you.</h1>
         <p class="lede hero__lede" data-anim="rise" style="--d:350ms">
           Thoughtful cleaning and housekeeping, from your weekly home reset to a detailed move‑out clean.
@@ -82,6 +83,7 @@ const claimIcons: Record<string, string> = {
   <!-- Services -->
   <section class="services section" id="services" aria-labelledby="services-heading">
     <div class="wrap">
+      <HeartRule variant="lead" class="ornament" />
       <div class="services__head">
         <h2 id="services-heading" data-anim="lines">Care for the everyday. Detail for the big days.</h2>
         <p class="services__intro" data-anim="rise" style="--d:200ms">
@@ -150,6 +152,7 @@ const claimIcons: Record<string, string> = {
         <Petals count={5} />
         <div class="wrap work__grid">
           <div class="work__copy">
+            <HeartRule variant="lead" class="ornament" />
             <h2 id="work-heading" data-anim="lines">From grimy to gleaming.</h2>
             <p class="lede" data-anim="rise" style="--d:200ms">
               Rust stains, soap residue and grime worked into the grout, taken back to bright white tile.
@@ -228,7 +231,7 @@ const claimIcons: Record<string, string> = {
           in your home and you can talk through your priorities before the first clean.
         </p>
         <p class="approach__sign" data-anim="rise" style="--d:200ms">
-          <span class="rule" aria-hidden="true"></span>
+          <HeartRule variant="trail" />
           {business.tagline}
         </p>
       </div>
@@ -306,12 +309,7 @@ const claimIcons: Record<string, string> = {
     margin-bottom: var(--space-l);
   }
 
-  .hero__eyebrow::after {
-    content: '';
-    width: 2.5rem;
-    height: 1px;
-    background: var(--gold);
-  }
+
 
   .hero h1 {
     max-width: 11em;
@@ -460,12 +458,28 @@ const claimIcons: Record<string, string> = {
   }
 
   .service__list li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
     padding-block: 0.65rem;
     border-bottom: 1px solid var(--line);
   }
 
   .service--bond .service__list li {
     border-color: var(--blush-deep);
+  }
+
+  .service__list li::before {
+    content: '';
+    flex: none;
+    width: 0.7rem;
+    height: 0.7rem;
+    transform: translateY(0.05rem);
+    background: currentColor;
+    color: var(--heart);
+    opacity: 0.75;
+    -webkit-mask: var(--heart-mask) center / contain no-repeat;
+    mask: var(--heart-mask) center / contain no-repeat;
   }
 
   .service__tag {

@@ -1,0 +1,26 @@
+---
+/**
+ * The logo's motif: a fine gold line with a small outline heart.
+ *   center → line ♡ line  (as under the wordmark in the logo)
+ *   lead   → ♡ line       (section ornament above a heading)
+ *   trail  → line ♡       (after a short label)
+ * With motion, the lines draw out, the heart draws itself, then beats once.
+ */
+interface Props {
+  variant?: 'center' | 'lead' | 'trail';
+  tone?: 'default' | 'light';
+  class?: string;
+}
+const { variant = 'center', tone = 'default', class: className } = Astro.props;
+---
+
+<span class:list={['heart-rule', `heart-rule--${variant}`, `heart-rule--${tone}`, className]} aria-hidden="true" data-anim="heart">
+  {variant !== 'lead' && <span class="heart-rule__line heart-rule__line--in" />}
+  <svg class="heart-rule__heart" viewBox="0 0 24 24">
+    <path
+      pathLength="100"
+      d="M12 20.3C7.2 16.9 3.5 13.6 3.5 9.6 3.5 6.9 5.5 5 7.9 5c1.7 0 3.1.9 4.1 2.3C13 5.9 14.4 5 16.1 5c2.4 0 4.4 1.9 4.4 4.6 0 4-3.7 7.3-8.5 10.7Z"
+    />
+  </svg>
+  {variant !== 'trail' && <span class="heart-rule__line heart-rule__line--out" />}
+</span>

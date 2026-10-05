@@ -1,4 +1,6 @@
 ---
+import HeartRule from './HeartRule.astro';
+
 interface Props {
   heading?: string;
 }
@@ -13,6 +15,7 @@ const steps = [
 
 <section class="steps section" aria-labelledby="steps-heading">
   <div class="wrap">
+    <HeartRule variant="lead" class="ornament" />
     <h2 id="steps-heading" class="steps__heading" data-anim="lines">{heading}</h2>
     <ol class="steps__list" data-stagger="150">
       {

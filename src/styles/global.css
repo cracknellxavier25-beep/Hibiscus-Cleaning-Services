@@ -233,6 +233,59 @@ a:hover {
   margin: 0;
 }
 
+/* ---------- Heart motif (from the logo) ---------- */
+:root {
+  --heart: #b8325e;
+  --heart-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linejoin='round'%3E%3Cpath d='M12 20.3C7.2 16.9 3.5 13.6 3.5 9.6 3.5 6.9 5.5 5 7.9 5c1.7 0 3.1.9 4.1 2.3C13 5.9 14.4 5 16.1 5c2.4 0 4.4 1.9 4.4 4.6 0 4-3.7 7.3-8.5 10.7Z'/%3E%3C/svg%3E");
+}
+
+.heart-rule {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--heart);
+  vertical-align: middle;
+}
+
+.heart-rule--light {
+  --heart: var(--on-burgundy-soft);
+}
+
+.heart-rule__line {
+  display: block;
+  width: 2.5rem;
+  height: 1px;
+  background: var(--gold);
+}
+
+.heart-rule--light .heart-rule__line {
+  background: rgb(240 214 222 / 0.6);
+}
+
+.heart-rule--center .heart-rule__line {
+  width: 3.5rem;
+}
+
+.heart-rule__heart {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  overflow: visible;
+}
+
+.heart-rule__heart path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+/* Section ornament above a heading */
+.ornament {
+  display: flex;
+  margin-bottom: var(--space-m);
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   touch-action: manipulation;

@@ -195,6 +195,49 @@
   opacity: 1;
 }
 
+/* ---------- Heart ornaments: lines draw out, heart draws in, one beat ---------- */
+.motion .heart-rule .heart-rule__line {
+  transform: scaleX(0);
+  transition: transform 700ms var(--ease-out-expo);
+  transition-delay: var(--d, 0ms);
+}
+.motion .heart-rule .heart-rule__line--in {
+  transform-origin: 100% 50%;
+}
+.motion .heart-rule .heart-rule__line--out {
+  transform-origin: 0% 50%;
+}
+.motion .heart-rule .heart-rule__heart path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 900ms var(--ease) calc(var(--d, 0ms) + 150ms);
+}
+.motion .heart-rule.is-in .heart-rule__line {
+  transform: none;
+}
+.motion .heart-rule.is-in .heart-rule__heart path {
+  stroke-dashoffset: 0;
+}
+.motion .heart-rule.is-in .heart-rule__heart {
+  animation: heart-beat 900ms var(--ease) calc(var(--d, 0ms) + 950ms) both;
+}
+
+@keyframes heart-beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.28);
+  }
+  40% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.14);
+  }
+}
+
 /* ---------- Drifting petals ---------- */
 .petals {
   position: absolute;

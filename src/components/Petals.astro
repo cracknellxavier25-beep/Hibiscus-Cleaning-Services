@@ -7,8 +7,10 @@
 interface Props {
   count?: number;
   tone?: 'pink' | 'light';
+  /** Swap every third petal for a small heart, echoing the logo. */
+  hearts?: boolean;
 }
-const { count = 8, tone = 'pink' } = Astro.props;
+const { count = 8, tone = 'pink', hearts = false } = Astro.props;
 
 // Deterministic spread so builds are stable.
 const petals = Array.from({ length: count }, (_, i) => {
@@ -27,17 +29,30 @@ const fill = tone === 'pink' ? ['#f6a9bf', '#e8708f'] : ['#fbe3ea', '#f3c6d3'];
 
 <div class="petals" aria-hidden="true">
   {
-    petals.map((p, i) => (
-      <svg
-        viewBox="0 0 40 52"
-        style={`--x:${p.x};--s:${p.s};--dur:${p.dur};--delay:${p.delay};--sway:${p.sway};--o:${p.o}`}
-      >
-        <path
-          d="M20 52C8 42 0 30 2 17 4 6 12 0 20 3c8-3 16 3 18 14 2 13-6 25-18 35Z"
-          fill={fill[i % 2]}
-        />
-        <path d="M20 50C19 36 19 20 20 6" stroke="#fff" stroke-opacity=".45" stroke-width="1" fill="none" />
-      </svg>
-    ))
+    petals.map((p, i) =>
+      hearts && i % 3 === 1 ? (
+        <svg
+          viewBox="0 0 24 24"
+          class="petals__heart"
+          style={`--x:${p.x};--s:calc(${p.s} * 0.6);--dur:${p.dur};--delay:${p.delay};--sway:${p.sway};--o:${p.o}`}
+        >
+          <path
+            d="M12 20.3C7.2 16.9 3.5 13.6 3.5 9.6 3.5 6.9 5.5 5 7.9 5c1.7 0 3.1.9 4.1 2.3C13 5.9 14.4 5 16.1 5c2.4 0 4.4 1.9 4.4 4.6 0 4-3.7 7.3-8.5 10.7Z"
+            fill={fill[1]}
+          />
+        </svg>
+      ) : (
+        <svg
+          viewBox="0 0 40 52"
+          style={`--x:${p.x};--s:${p.s};--dur:${p.dur};--delay:${p.delay};--sway:${p.sway};--o:${p.o}`}
+        >
+          <path
+            d="M20 52C8 42 0 30 2 17 4 6 12 0 20 3c8-3 16 3 18 14 2 13-6 25-18 35Z"
+            fill={fill[i % 2]}
+          />
+          <path d="M20 50C19 36 19 20 20 6" stroke="#fff" stroke-opacity=".45" stroke-width="1" fill="none" />
+        </svg>
+      ),
+    )
   }
 </div>

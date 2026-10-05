@@ -4,6 +4,7 @@ import logo from '../assets/brand/logo.png';
 import { business, services, isPublished } from '../content/site';
 
 import { execSync } from 'node:child_process';
+import HeartRule from './HeartRule.astro';
 
 const year = new Date().getFullYear();
 
@@ -25,6 +26,7 @@ const socials = Object.values(business.social).filter((s) => s.publish);
   <div class="wrap site-footer__grid">
     <div class="site-footer__brand">
       <Image src={logo} alt={`${business.name} logo: a pink hibiscus with the words ${business.tagline}`} width={168} height={168} densities={[1, 2]} loading="lazy" class="site-footer__logo" />
+      <HeartRule class="site-footer__heart" />
     </div>
 
     <div class="site-footer__col">
@@ -94,6 +96,19 @@ const socials = Object.values(business.social).filter((s) => s.publish);
     grid-template-columns: auto repeat(3, minmax(0, 1fr));
     gap: var(--space-2xl) clamp(1.5rem, 1rem + 3vw, 4rem);
     align-items: start;
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-m);
+  }
+
+  @media (max-width: 59.99em) {
+    .site-footer__brand {
+      align-items: flex-start;
+    }
   }
 
   .site-footer__logo {
