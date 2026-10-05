@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import HeartRule from '../components/HeartRule.astro';
 import { business } from '../content/site';
 import { formMode } from '../lib/form-config';
 ---
@@ -16,6 +17,7 @@ import { formMode } from '../lib/form-config';
           <li aria-current="page">Privacy</li>
         </ol>
       </nav>
+      <HeartRule variant="lead" class="ornament" />
       <h1>Privacy policy</h1>
       <p class="lede">How {business.name} handles the details you share with us.</p>
     </div>

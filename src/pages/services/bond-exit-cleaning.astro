@@ -7,6 +7,7 @@ import ContactSection from '../../components/ContactSection.astro';
 import PhoneIcon from '../../components/PhoneIcon.astro';
 import Hibiscus from '../../components/Hibiscus.astro';
 import Petals from '../../components/Petals.astro';
+import HeartRule from '../../components/HeartRule.astro';
 import Reveal from '../../components/Reveal.astro';
 import beforeAligned from '../../assets/work/shower-glass-before-aligned.png';
 import afterAligned from '../../assets/work/shower-glass-after-aligned.png';
@@ -23,7 +24,7 @@ const shower = media.showerGlass;
   description="Detailed bond and exit cleaning across the Moreton Bay region: kitchen, deep bathroom and shower, cupboards, skirting boards and window tracks. Call 0435 895 629."
 >
   <section class="page-intro page-intro--flower" data-hib-zone>
-    <Petals count={5} />
+    <Petals count={5} hearts />
     <div class="page-intro__flower">
       <Hibiscus id="bond-hib" interactive />
     </div>
@@ -35,6 +36,7 @@ const shower = media.showerGlass;
           <li aria-current="page">Bond and exit cleaning</li>
         </ol>
       </nav>
+      <HeartRule variant="lead" class="ornament" />
       <h1 data-anim="lines">Bond and exit cleaning</h1>
       <p class="lede" data-anim="rise" style="--d:250ms">
         {svc.summary} Hibiscus works through the property in detail so you can hand it back beautifully presented and
@@ -53,7 +55,7 @@ const shower = media.showerGlass;
   <section class="section" aria-labelledby="included-heading">
     <div class="wrap">
       <div class="split split--head">
-        <h2 id="included-heading" data-anim="lines">What a bond clean covers</h2>
+        <h2 class="heart-mark" id="included-heading" data-anim="lines">What a bond clean covers</h2>
         <p class="muted">
           The advertised scope for a bond or exit clean. Every property is different, so confirm the details for yours
           when you discuss your quote.
@@ -74,7 +76,7 @@ const shower = media.showerGlass;
       <section class="section section--tint" aria-labelledby="shower-heading">
         <div class="wrap shower">
           <div class="shower__copy">
-            <h2 id="shower-heading" data-anim="lines">Detail where it shows</h2>
+            <h2 class="heart-mark" id="shower-heading" data-anim="lines">Detail where it shows</h2>
             <p class="lede">
               Shower screens are one of the first things people notice. A bond clean includes removing limescale, soap
               scum and built-up grime from the glass, tiles and fixtures.
@@ -98,7 +100,7 @@ const shower = media.showerGlass;
 
   <section class="section section--ruled" aria-labelledby="quote-heading">
     <div class="wrap split">
-      <h2 id="quote-heading" data-anim="lines">Discuss your quote</h2>
+      <h2 class="heart-mark" id="quote-heading" data-anim="lines">Discuss your quote</h2>
       <div class="prose">
         <p class="lede">
           Pricing depends on the property, so it’s worked out with you rather than listed here.
@@ -119,7 +121,7 @@ const shower = media.showerGlass;
 
   <section class="section section--ruled" aria-labelledby="faq-heading">
     <div class="wrap split">
-      <h2 id="faq-heading" data-anim="lines">Questions</h2>
+      <h2 class="heart-mark" id="faq-heading" data-anim="lines">Questions</h2>
       <div>
         <FaqList only={[3, 1, 4, 5]} />
       </div>

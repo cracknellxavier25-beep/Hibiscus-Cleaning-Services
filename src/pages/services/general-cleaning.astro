@@ -7,6 +7,7 @@ import ContactSection from '../../components/ContactSection.astro';
 import PhoneIcon from '../../components/PhoneIcon.astro';
 import Hibiscus from '../../components/Hibiscus.astro';
 import Petals from '../../components/Petals.astro';
+import HeartRule from '../../components/HeartRule.astro';
 import { business, services, cta } from '../../content/site';
 
 const svc = services.general;
@@ -19,7 +20,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
   description="Weekly, fortnightly or regular home cleaning and housekeeping across the Moreton Bay region: bathrooms, kitchen, dusting, floors, linen and laundry on request."
 >
   <section class="page-intro page-intro--flower" data-hib-zone>
-    <Petals count={5} />
+    <Petals count={5} hearts />
     <div class="page-intro__flower">
       <Hibiscus id="general-hib" interactive />
     </div>
@@ -31,6 +32,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
           <li aria-current="page">General cleaning</li>
         </ol>
       </nav>
+      <HeartRule variant="lead" class="ornament" />
       <h1 data-anim="lines">General cleaning and housekeeping</h1>
       <p class="lede" data-anim="rise" style="--d:250ms">{svc.description}</p>
       <div class="btn-row" data-anim="rise" style="--d:380ms">
@@ -46,7 +48,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
   <section class="section" aria-labelledby="frequency-heading">
     <div class="wrap split">
       <div class="split__aside">
-        <h2 id="frequency-heading" data-anim="lines">A clean that fits your week</h2>
+        <h2 class="heart-mark" id="frequency-heading" data-anim="lines">A clean that fits your week</h2>
       </div>
       <div class="split__main prose">
         <p class="lede">
@@ -65,7 +67,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
   <section class="section section--tint" aria-labelledby="included-heading">
     <div class="wrap">
       <div class="split split--head">
-        <h2 id="included-heading" data-anim="lines">What’s included</h2>
+        <h2 class="heart-mark" id="included-heading" data-anim="lines">What’s included</h2>
         <p class="muted">
           These are the advertised inclusions for a general clean. Not every item is needed at every visit; you’ll
           agree the scope when you discuss your clean.
@@ -90,7 +92,7 @@ const onRequest = svc.inclusions.filter((i) => i.onRequest);
 
   <section class="section section--ruled" aria-labelledby="faq-heading">
     <div class="wrap split">
-      <h2 id="faq-heading" data-anim="lines" class="split__aside">Questions</h2>
+      <h2 id="faq-heading" data-anim="lines" class="split__aside heart-mark">Questions</h2>
       <div class="split__main">
         <FaqList only={[0, 2, 1, 4, 5]} />
       </div>
